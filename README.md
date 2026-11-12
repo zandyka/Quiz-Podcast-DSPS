@@ -1,43 +1,52 @@
 # Quiz Podcast DSPS — Rahasia Mutu Kopi Ijen 🍒🧺
-*(Kuis Mandiri 24/7 Tanpa Host · Terhubung Google Spreadsheet · Siap Vercel)*
+*(Edisi PTPN Group · Mobile Motion First · Akses Mandiri 24/7 · Panel Admin Sandi 'dsps')*
 
-Repository: **[https://github.com/zandyka/Quiz-Podcast-DSPS.git](https://github.com/zandyka/Quiz-Podcast-DSPS.git)**
+Repository GitHub: **[https://github.com/zandyka/Quiz-Podcast-DSPS.git](https://github.com/zandyka/Quiz-Podcast-DSPS.git)**
 
-Game kuis interaktif bertema **Kopi Ijen** yang dirancang khusus untuk audiens Podcast DSPS. **Dapat diakses kapan saja secara mandiri tanpa perlu host**, di mana setiap hasil kuis otomatis tersimpan dan diperingkatkan langsung ke **Google Spreadsheet**.
-
----
-
-## 🌟 Fitur Utama & Pengalaman Pengguna (User-Friendly 24/7)
-
-1. **Akses Kapan Saja (Tanpa Perlu Host)**:
-   * Siapa pun dapat membuka website kapan saja untuk langsung bermain kuis.
-   * Tidak perlu menunggu room dibuat oleh host, tidak perlu nunggu pemain lain di lobby.
-2. **Alur Kuis Super Simpel (3 Langkah)**:
-   * **Langkah 1:** Masukkan **Nama Lengkap** dan **Asal Unit Kerja / Entitas**.
-   * **Langkah 2:** Arena Kuis interaktif (90 detik). Buka 8 buah kopi merah di pohon, temukan 4 faktor mutu Kopi Ijen yang benar. Cukup ketuk buah lalu tekan tombol **"🧺 Masukkan ke Keranjang"**.
-   * **Langkah 3:** Selesai! Skor akhir muncul dengan animasi konfeti, otomatis tersimpan ke Google Spreadsheet, dan dapat dibagikan langsung ke WhatsApp.
-3. **🏆 Papan Peringkat Global Real-Time (Live Leaderboard)**:
-   * Terhubung langsung dengan Google Spreadsheet.
-   * Menampilkan **Podium Top 3 Juara** (👑 🥇 Emas, 🥈 Perak, 🥉 Perunggu) dan tabel peringkat lengkap seluruh pemain yang pernah berpartisipasi.
-4. **📖 Tab Edukasi & Wawasan Kopi Ijen**:
-   * Penjelasan 4 faktor keunggulan Kopi Ijen: Tanah vulkanik kaya hara, ketinggian >1.000 mdpl, petik merah selektif, dan double sortasi/fermentasi 12–36 jam.
-5. **🎉 Audio & Perayaan Seru**:
-   * Efek audio ceria Web Audio API (dengan tombol 🔊 / 🔇 untuk mematikan suara jika di tempat sunyi).
-   * Animasi kembang api konfeti saat memilih benar dan saat kuis selesai.
-   * Tombol ⛶ Layar Penuh.
+Game kuis interaktif mobile-first bertema **Kopi Ijen** yang dirancang khusus untuk seluruh insan **PTPN Group** dalam rangkaian acara Podcast DSPS.
 
 ---
 
-## 📊 Google Spreadsheet Database (Telah Dipercantik & Diberi Warna)
+## 🌟 Fitur Utama & Pembaruan Sistem
 
+### 1. 🔒 Panel Admin (Kata Sandi: `dsps`)
+* **Tombol Admin di Pojok Atas**: Panitia dapat mengklik tombol **"🔒 Admin"** lalu memasukkan kata sandi: `dsps`.
+* **Kontrol Buka / Tutup Kuis**:
+  * **🟢 Kuis Dibuka**: Kuis dapat diakses dan dimainkan oleh seluruh peserta kapan saja tanpa batasan durasi acara.
+  * **🔴 Kuis Ditutup**: Ketika acara podcast atau periode kuis selesai, Admin cukup menekan tombol **"Tutup Kuis Sekarang"**.
+  * Peserta yang membuka website saat kuis ditutup akan melihat pesan ramah dan diarahkan untuk melihat Papan Peringkat akhir.
+  * Admin dapat membuka kembali kuis kapan saja.
+
+### 2. 📱 Fokus Desain Mobile-First & Animasi Motion Halus
+* **Didesain Khusus untuk Layar Smartphone**:
+  * Lebar layout proporsional, teks besar, dan kontrol berada di area jangkauan jempol (*thumb-zone*).
+* **Interaksi & Motion Memikat**:
+  * **Buah Kopi Berayun (*Floating Motion*)**: Efek visual buah kopi merah segar yang hidup di pohon kopi.
+  * **Sticky Action Sheet**: Saat buah kopi diketuk, muncul panel elegan dari bawah dengan teks penjelasan dan tombol besar **"🧺 Masukkan ke Keranjang"**.
+  * **Keranjang Bergoyang (*Basket Jiggle*)**: Saat buah kopi dimasukkan, keranjang membal dan bergoyang dengan efek audio synthesizer yang jernih.
+  * **Efek Pesta Konfeti (*Confetti Burst*)**: Kembang api kertas warna-warni saat peserta memilih jawaban tepat dan saat berhasil menyelesaikan kuis.
+
+### 3. 🏢 Dropdown Resmi Entitas PTPN Group
+Bagian entitas telah diubah menjadi menu pilihan (*dropdown*) berisi seluruh entitas resmi **PTPN Group**:
+* Holding Perkebunan Nusantara (PTPN III Persero)
+* PTPN IV PalmCo (Kantor Pusat & Regional 1 s.d. 5)
+* PTPN I SupportingCo (Kantor Pusat & Regional 1 s.d. 5)
+* PT Sinergi Gula Nusantara (SugarCo)
+* PT Riset Perkebunan Nusantara (RPN)
+* PT LPP Agro Nusantara (LPP)
+* PT Kharisma Pemasaran Bersama Nusantara (KPBN)
+* PT Industri Nabati Lestari (INL)
+* PT Dasaplast Nusantara
+* PT Bio Industri Nusantara
+* PT Sarana Agro Nusantara
+* PT Kawasan Industri Terpadu Batang (KITB)
+* Afiliasi / Mitra PTPN Group Lainnya
+
+### 4. 📊 Integrasi Google Spreadsheet & Live Leaderboard
 * **URL Spreadsheet:** [Google Spreadsheet Kopi Ijen](https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit?gid=0#gid=0)
-* **Spreadsheet ID:** `1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY`
-* **Format Tabel Baru yang Dipercantik:**
-  * **Header Hijau Kopi Gelap (`#173D30`)**, teks putih tebal, rata tengah, dan di-*freeze* agar tetap terlihat saat di-scroll.
-  * Lebar kolom rapi: Nama (200px), Entitas (180px), Soal 1..8 (120px), Total Skor (120px, Bold), Waktu Selesai (170px).
-  * **Pewarnaan Otomatis (Conditional Formatting):**
-    * Teks **Benar** otomatis berwarna hijau lembut (`#D4EDDA`).
-    * Teks **Salah** otomatis berwarna merah lembut (`#F8D7DA`).
+* **Penyimpanan Otomatis**: Setiap peserta yang selesai bermain, nilainya otomatis terkirim dan tersimpan di Google Spreadsheet.
+* **Tabel Dipercantik**: Header hijau kopi tua, freeze row 1, kolom rapi, dan pewarnaan otomatis (Hijau untuk Benar, Merah untuk Salah).
+* **Papan Peringkat Real-Time**: Menampilkan Podium Top 3 (👑 🥇, 🥈, 🥉) dan klasemen seluruh insan PTPN Group.
 
 ---
 
@@ -51,10 +60,9 @@ Game kuis interaktif bertema **Kopi Ijen** yang dirancang khusus untuk audiens P
 
 ---
 
-## ☁️ Deploy ke Vercel
+## ☁️ Deployment ke Vercel
 
-1. Buka [vercel.com](https://vercel.com) dan login dengan akun GitHub Anda.
-2. Klik **"Add New..." → "Project"**.
-3. Pilih repository **`zandyka/Quiz-Podcast-DSPS`**.
-4. Klik **"Deploy"**!
-5. Kuis Anda akan aktif 24 jam di URL publik (contoh: `https://quiz-podcast-dsps.vercel.app`).
+Kode sudah terhubung dengan repository GitHub Anda:
+1. Masuk ke [vercel.com](https://vercel.com) dengan akun GitHub Anda.
+2. Tambahkan proyek dari repository `zandyka/Quiz-Podcast-DSPS`.
+3. Klik **Deploy**!

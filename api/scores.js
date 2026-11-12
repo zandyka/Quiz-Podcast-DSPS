@@ -1,9 +1,16 @@
-// api/scores.js - Vercel Serverless Function untuk Leaderboard & Submit Skor Otomatis
+// api/scores.js - Vercel Serverless Function untuk Leaderboard, Status Kuis (Admin) & Submit Skor
 // Terhubung langsung ke Google Spreadsheet 1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY
 
 const SPREADSHEET_ID = '1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn-8s9up8UTwUwzJ6M_a9DvqrGEiBabJkTT8-L0QMlX14NNwgZlBa5EzJcvcqBFbNGww/exec';
 const CSV_EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`;
+
+const ADMIN_PASSWORD = 'dsps';
+
+// In-memory status kuis ('open' | 'closed')
+if (typeof global.__QUIZ_STATUS__ === 'undefined') {
+  global.__QUIZ_STATUS__ = 'open';
+}
 
 function parseCsv(text) {
   const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
@@ -57,7 +64,46 @@ module.exports = async function handler(req, res) {
   const action = query.action || body.action || (req.method === 'GET' ? 'get_leaderboard' : 'submit_score');
 
   try {
-    // 1. Ambil Papan Peringkat dari Google Spreadsheet
+    // 1. Cek Status Kuis (Buka / Tutup)
+    if (action === 'get_status') {
+      return res.status(200).json({
+        ok: true,
+        status: global.__QUIZ_STATUS__,
+        spreadsheet_id: SPREADSHEET_ID
+      });
+    }
+
+    // 2. Admin: Verifikasi Password 'dsps' & Ubah Status (Buka/Tutup)
+    if (action === 'admin_set_status') {
+      const pass = (body.password || '').trim();
+      if (pass !== ADMIN_PASSWORD) {
+        return res.status(403).json({ error: 'Password Admin salah!' });
+      }
+
+      const newStatus = body.status === 'closed' ? 'closed' : 'open';
+      global.__QUIZ_STATUS__ = newStatus;
+
+      return res.status(200).json({
+        ok: true,
+        message: `Kuis berhasil diubah menjadi: ${newStatus === 'open' ? 'DIBUKA' : 'DITUTUP'}`,
+        status: global.__QUIZ_STATUS__
+      });
+    }
+
+    // 3. Admin: Validasi Login Password
+    if (action === 'admin_login') {
+      const pass = (body.password || '').trim();
+      if (pass !== ADMIN_PASSWORD) {
+        return res.status(403).json({ error: 'Password Admin salah!' });
+      }
+      return res.status(200).json({
+        ok: true,
+        status: global.__QUIZ_STATUS__,
+        message: 'Login Admin Berhasil'
+      });
+    }
+
+    // 4. Ambil Papan Peringkat dari Google Spreadsheet
     if (action === 'get_leaderboard') {
       const response = await fetch(CSV_EXPORT_URL, { redirect: 'follow' });
       if (!response.ok) {
@@ -67,8 +113,6 @@ module.exports = async function handler(req, res) {
       const csvText = await response.text();
       const rows = parseCsv(csvText);
 
-      // Baris 0 adalah Header, Baris 1 adalah Kunci Jawaban Resmi
-      // Baris data peserta mulai dari indeks 2 ke atas
       const leaderboard = [];
       for (let i = 2; i < rows.length; i++) {
         const r = rows[i];
@@ -77,7 +121,6 @@ module.exports = async function handler(req, res) {
         const score = parseInt(r[10], 10) || 0;
         const timestamp = r[11] || '';
 
-        // Hitung jawaban benar dari kolom 2 s.d. 9 (Soal 1 s.d. 8)
         let correctCount = 0;
         for (let col = 2; col <= 9; col++) {
           if (r[col] && r[col].toLowerCase().includes('benar')) {
@@ -103,25 +146,32 @@ module.exports = async function handler(req, res) {
         return b.correctCount - a.correctCount;
       });
 
-      // Tentukan nomor peringkat
       leaderboard.forEach((p, idx) => {
         p.rank = idx + 1;
       });
 
       return res.status(200).json({
         ok: true,
+        quiz_status: global.__QUIZ_STATUS__,
         spreadsheet_id: SPREADSHEET_ID,
         total_participants: leaderboard.length,
         leaderboard
       });
     }
 
-    // 2. Submit Skor Peserta (Simpan Otomatis ke Google Spreadsheet)
+    // 5. Submit Skor Peserta (Simpan Otomatis ke Google Spreadsheet)
     if (action === 'submit_score') {
+      // Periksa apakah kuis sedang dibuka oleh admin
+      if (global.__QUIZ_STATUS__ === 'closed') {
+        return res.status(403).json({
+          error: 'Kuis saat ini telah ditutup oleh Admin. Skor baru tidak dapat diterima.'
+        });
+      }
+
       const name = (body.name || '').trim();
       const entity = (body.entity || '').trim();
       const score = Number(body.score) || 0;
-      const answers = body.answers || {}; // { 1: { correct: true, points: 100 }, ... }
+      const answers = body.answers || {};
       const timestamp = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB';
 
       if (!name) {
@@ -134,7 +184,6 @@ module.exports = async function handler(req, res) {
         return a.correct ? `Benar (+${a.points || 100})` : `Salah (${a.points || -50})`;
       };
 
-      // Format baris sesuai kolom tabel spreadsheet
       const newRow = [
         name,
         entity || '—',

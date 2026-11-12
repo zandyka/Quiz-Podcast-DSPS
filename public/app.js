@@ -1,5 +1,5 @@
 // public/app.js - Quiz Podcast DSPS (Kopi Ijen Challenge)
-// Sistem Mandiri 24/7 Tanpa Host · Terhubung Google Spreadsheet
+// Sistem Admin (Password: dsps), Entitas PTPN Group & Mobile-First Motion
 
 (() => {
   'use strict';
@@ -8,6 +8,33 @@
   const API_BASE = '/api';
 
   const QUESTION = 'Apa saja faktor yang membuat Kopi Ijen memiliki cita rasa istimewa dan diakui secara global?';
+
+  // Daftar Resmi Entitas PTPN Group
+  const PTPN_ENTITIES = [
+    'Holding Perkebunan Nusantara (PTPN III Persero)',
+    'PTPN IV PalmCo - Kantor Pusat',
+    'PTPN IV PalmCo - Regional 1',
+    'PTPN IV PalmCo - Regional 2',
+    'PTPN IV PalmCo - Regional 3',
+    'PTPN IV PalmCo - Regional 4',
+    'PTPN IV PalmCo - Regional 5',
+    'PTPN I SupportingCo - Kantor Pusat',
+    'PTPN I SupportingCo - Regional 1',
+    'PTPN I SupportingCo - Regional 2',
+    'PTPN I SupportingCo - Regional 3',
+    'PTPN I SupportingCo - Regional 4',
+    'PTPN I SupportingCo - Regional 5',
+    'PT Sinergi Gula Nusantara (SugarCo)',
+    'PT Riset Perkebunan Nusantara (RPN)',
+    'PT LPP Agro Nusantara (LPP)',
+    'PT Kharisma Pemasaran Bersama Nusantara (KPBN)',
+    'PT Industri Nabati Lestari (INL)',
+    'PT Dasaplast Nusantara',
+    'PT Bio Industri Nusantara',
+    'PT Sarana Agro Nusantara',
+    'PT Kawasan Industri Terpadu Batang (KITB)',
+    'Afiliasi / Mitra PTPN Group Lainnya'
+  ];
 
   // Bank Soal Kopi Ijen: 4 Benar & 4 Salah
   const BEANS_DATA = [
@@ -26,14 +53,18 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[c]));
 
-  // State
+  // State aplikasi
   let currentTab = 'play'; // 'play' | 'leaderboard' | 'education'
   let gameStatus = 'intro'; // 'intro' | 'playing' | 'result'
+  let quizGlobalStatus = 'open'; // 'open' | 'closed' (dikendalikan admin)
+  let isAdminLoggedIn = false;
+  let adminPassword = '';
+
   let playerName = '';
   let playerEntity = '';
   let score = 0;
   let correctCount = 0;
-  let timeRemaining = 90;
+  let elapsedSeconds = 0;
   let timerInterval = null;
   let revealedBeans = {};
   let thrownBeans = {};
@@ -43,7 +74,6 @@
   let feedbackMessage = '';
   let audioMuted = false;
   let audioContext = null;
-  let cachedLeaderboard = [];
 
   // Basket SVG
   const BASKET_SVG = `
@@ -65,7 +95,7 @@
   `;
 
   // ==========================================
-  // CONFETTI BURST
+  // CONFETTI BURST (Pesta Perayaan)
   // ==========================================
   function fireConfetti() {
     const canvas = $('#confettiCanvas');
@@ -76,14 +106,14 @@
 
     const colors = ['#f5b027', '#25d366', '#ff4757', '#2ed573', '#ffffff', '#ffa502'];
     const particles = [];
-    const count = 100;
+    const count = 90;
 
     for (let i = 0; i < count; i++) {
       particles.push({
         x: canvas.width * 0.5,
         y: canvas.height * 0.55,
-        vx: (Math.random() - 0.5) * 16,
-        vy: (Math.random() - 0.7) * 16,
+        vx: (Math.random() - 0.5) * 15,
+        vy: (Math.random() - 0.7) * 15,
         size: Math.random() * 8 + 4,
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * 360,
@@ -176,11 +206,31 @@
     return a;
   }
 
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  // ==========================================
+  // STATUS KUIS (DIBUKA / DITUTUP ADMIN)
+  // ==========================================
+  async function fetchQuizStatus() {
+    try {
+      const res = await fetch(`${API_BASE}/scores?action=get_status`);
+      const data = await res.json();
+      quizGlobalStatus = data.status || 'open';
+    } catch {
+      quizGlobalStatus = 'open';
+    }
+    updateAdminUIStatus();
+  }
+
   // ==========================================
   // RENDER CONTROLLER
   // ==========================================
   function render() {
-    // Update active tab buttons
+    // Nav tab active state
     document.querySelectorAll('.nav-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === currentTab);
     });
@@ -191,6 +241,12 @@
     }
 
     if (currentTab === 'play') {
+      // Jika kuis ditutup oleh admin
+      if (quizGlobalStatus === 'closed' && gameStatus !== 'result') {
+        renderQuizClosed();
+        return;
+      }
+
       if (gameStatus === 'intro') renderIntro();
       else if (gameStatus === 'playing') renderPlayfield();
       else if (gameStatus === 'result') renderResult();
@@ -202,7 +258,36 @@
   }
 
   // ==========================================
-  // TAB 1: FORM INTRO (MASUK KUIS)
+  // LAYAR JIKA KUIS DITUTUP OLEH ADMIN
+  // ==========================================
+  function renderQuizClosed() {
+    const screen = $('#screen');
+    screen.innerHTML = `
+      <div class="panel">
+        <div class="panel-inner" style="text-align: center; max-width: 480px; margin: 0 auto; padding: 36px 18px;">
+          <div style="font-size: 54px; margin-bottom: 12px;">🔒 ☕</div>
+          <h2>Kuis Saat Ini Sedang Ditutup</h2>
+          <p class="muted" style="margin: 10px 0 20px; font-size: 14px;">
+            Terima kasih atas antusiasme seluruh rekan <b>PTPN Group</b>! Kuis telah resmi ditutup oleh panitia/admin.
+          </p>
+          <div style="background: #eef6ec; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 14px; font-size: 13.5px; color: #17452d; margin-bottom: 20px;">
+            🏆 Anda tetap dapat melihat perolehan skor akhir seluruh peserta di Papan Peringkat.
+          </div>
+          <button id="btnViewLeaderboardClosed" class="btn primary" style="width: 100%;">
+            🏆 Lihat Papan Peringkat PTPN Group →
+          </button>
+        </div>
+      </div>
+    `;
+
+    $('#btnViewLeaderboardClosed').onclick = () => {
+      currentTab = 'leaderboard';
+      render();
+    };
+  }
+
+  // ==========================================
+  // TAB 1: FORM INTRO (DROPDOWN ENTITAS PTPN)
   // ==========================================
   function renderIntro() {
     const screen = $('#screen');
@@ -211,39 +296,45 @@
 
     screen.innerHTML = `
       <div class="panel">
-        <div class="panel-inner" style="max-width: 620px; margin: 0 auto;">
-          <h2>🍒 Siap Uji Pengetahuan Kopi Ijen?</h2>
-          <p class="muted">Kuis ini dapat diakses kapan saja secara mandiri. Nilai Anda akan langsung tercatat di Papan Peringkat Google Spreadsheet.</p>
+        <div class="panel-inner" style="max-width: 480px; margin: 0 auto;">
+          <h2>🍒 Kuis Kopi Ijen PTPN Group</h2>
+          <p class="muted small">Pilih entitas asal Anda dan uji ketajaman pengetahuan tentang mutu kopi Ijen.</p>
 
-          <form id="startQuizForm" class="stack" style="margin-top: 18px;">
+          <form id="startQuizForm" class="stack" style="margin-top: 16px;">
             <div class="field-group">
-              <label class="field-label">Nama Lengkap Anda</label>
-              <input id="inputName" class="field" required placeholder="Ketik nama lengkap Anda" value="${escapeHtml(storedName)}" maxlength="60" autocomplete="name">
+              <label class="field-label">Nama Lengkap Peserta</label>
+              <input id="inputName" class="field" required placeholder="Ketik nama lengkap Anda..." value="${escapeHtml(storedName)}" maxlength="60" autocomplete="name">
             </div>
 
+            <!-- Dropdown Entitas PTPN Group -->
             <div class="field-group">
-              <label class="field-label">Asal Unit Kerja / Divisi / Instansi</label>
-              <input id="inputEntity" class="field" required placeholder="Contoh: Holding PTPN / Divisi IT / Kebun Ijen" value="${escapeHtml(storedEntity)}" maxlength="80">
+              <label class="field-label">Asal Unit Kerja / Entitas PTPN Group</label>
+              <select id="selectEntity" class="field" required>
+                <option value="" disabled ${!storedEntity ? 'selected' : ''}>-- Pilih Entitas PTPN Group --</option>
+                ${PTPN_ENTITIES.map(ent => `
+                  <option value="${escapeHtml(ent)}" ${storedEntity === ent ? 'selected' : ''}>${escapeHtml(ent)}</option>
+                `).join('')}
+              </select>
             </div>
 
-            <!-- Petunjuk Ringkas Kuis -->
-            <div style="background: #f4f8f1; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 16px; margin: 6px 0;">
-              <strong style="color: #17452d; display: block; margin-bottom: 6px;">📖 Aturan Kuis:</strong>
-              <ul style="padding-left: 20px; font-size: 13.5px; color: #284c36; line-height: 1.6;">
-                <li>Ada <b>8 buah kopi merah</b>. Pilih <b>4 faktor</b> yang membuat Kopi Ijen istimewa.</li>
-                <li>Jawaban Benar: <b>+100 poin</b> · Pilihan Salah: <b>-50 poin</b>.</li>
-                <li>Temukan ke-4 jawaban benar untuk mendapatkan <b>Bonus +100 poin</b>!</li>
-                <li>Waktu pengerjaan: <b>90 detik</b>.</li>
+            <!-- Petunjuk Ringkas Kuis Mobile -->
+            <div style="background: #f4f8f1; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 14px; margin: 6px 0;">
+              <strong style="color: #17452d; display: block; margin-bottom: 5px; font-size: 13.5px;">📖 Cara Main Singkat:</strong>
+              <ul style="padding-left: 18px; font-size: 13px; color: #284c36; line-height: 1.6;">
+                <li>Ada <b>8 buah kopi merah</b>. Pilih <b>4 faktor mutu</b> Kopi Ijen.</li>
+                <li>Jawaban Benar: <b>+100</b> · Pilihan Salah: <b>-50</b>.</li>
+                <li>Temukan 4 buah benar untuk bonus sapu bersih <b>+100 poin</b>!</li>
+                <li>Bebas bermain tanpa batasan durasi acara kuis.</li>
               </ul>
             </div>
 
-            <button type="submit" class="btn primary" style="font-size: 16px; padding: 14px 24px; margin-top: 6px;">
+            <button type="submit" class="btn primary" style="font-size: 16px; padding: 14px; margin-top: 4px;">
               🍒 Mulai Kuis Sekarang →
             </button>
           </form>
 
-          <div style="margin-top: 18px; text-align: center;">
-            <button id="btnQuickLeaderboard" class="btn ghost sm">🏆 Lihat Papan Peringkat Pemain Lain</button>
+          <div style="margin-top: 16px; text-align: center;">
+            <button id="btnQuickLeaderboard" class="btn ghost sm">🏆 Lihat Papan Peringkat</button>
           </div>
         </div>
       </div>
@@ -252,10 +343,10 @@
     $('#startQuizForm').onsubmit = e => {
       e.preventDefault();
       const n = $('#inputName').value.trim();
-      const ent = $('#inputEntity').value.trim();
+      const ent = $('#selectEntity').value;
 
-      if (n.length < 2) return showToast('Nama minimal 2 karakter');
-      if (ent.length < 2) return showToast('Asal unit/instansi minimal 2 karakter');
+      if (n.length < 2) return showToast('Nama lengkap minimal 2 karakter');
+      if (!ent) return showToast('Pilih salah satu entitas PTPN Group');
 
       playerName = n;
       playerEntity = ent;
@@ -277,7 +368,7 @@
   function startQuiz() {
     score = 0;
     correctCount = 0;
-    timeRemaining = 90;
+    elapsedSeconds = 0;
     revealedBeans = {};
     thrownBeans = {};
     selectedBean = null;
@@ -287,38 +378,33 @@
     gameStatus = 'playing';
     render();
 
-    // Timer countdown
+    // Stopwatch permainan santai
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-      timeRemaining--;
-      const clockEl = $('#clock');
-      if (clockEl) clockEl.textContent = `${timeRemaining}s`;
-
-      if (timeRemaining <= 0) {
-        clearInterval(timerInterval);
-        finishQuiz();
-      }
+      elapsedSeconds++;
+      const timeEl = $('#timeDisplay');
+      if (timeEl) timeEl.textContent = formatTime(elapsedSeconds);
     }, 1000);
 
     showToast('Kuis dimulai! Ketuk buah kopi untuk membaca.');
   }
 
   // ==========================================
-  // TAB 1: ARENA PERMAINAN (PLAYFIELD)
+  // TAB 1: ARENA PERMAINAN (PLAYFIELD DENGAN MOTION)
   // ==========================================
   function renderPlayfield() {
     const screen = $('#screen');
     const totalThrown = Object.keys(thrownBeans).length;
 
     screen.innerHTML = `
-      <!-- Bar Skor & Waktu -->
-      <div class="stats" style="margin-bottom: 12px;">
+      <!-- Stats Bar Mobile -->
+      <div class="stats" style="margin-bottom: 10px;">
         <div class="stat-item">
-          <b id="clock">${timeRemaining}s</b>
-          <small>Sisa Waktu</small>
+          <b id="timeDisplay">${formatTime(elapsedSeconds)}</b>
+          <small>Waktu Main</small>
         </div>
         <div class="stat-item">
-          <b>${score}</b>
+          <b id="scoreDisplay">${score}</b>
           <small>Skor Anda</small>
         </div>
         <div class="stat-item">
@@ -333,7 +419,7 @@
 
       <!-- Banner Pertanyaan -->
       <div class="game-question">
-        <small>🍃 PERTANYAAN KUIS PODCAST DSPS · PILIH 4 FAKTOR BENAR</small>
+        <small>🍃 SOAL KUIS PODCAST DSPS · PILIH 4 JAWABAN TEPAT</small>
         <h2>${QUESTION}</h2>
       </div>
 
@@ -363,26 +449,26 @@
           }).join('')}
         </div>
 
-        <!-- Target Keranjang -->
+        <!-- Target Keranjang Animasi -->
         <div class="basket-zone" id="basketTarget">
           <span class="basket-caption">🧺 KERANJANG BIJI TERBAIK</span>
           ${BASKET_SVG}
         </div>
       </div>
 
-      <p style="text-align: center; color: #d0e6d6; font-size: 13px; margin-top: 10px;">
-        💡 Ketuk buah untuk membaca opsinya, lalu tekan tombol <b>"Masukkan ke Keranjang"</b> di bawah.
+      <p style="text-align: center; color: #cbe0d3; font-size: 12.5px; margin-top: 8px;">
+        💡 <b>Tips:</b> Ketuk buah untuk membaca opsinya, lalu pilih <b>"Masukkan ke Keranjang"</b>.
       </p>
 
-      <!-- Action Bar Ramah Non-IT (1-Tap Masuk Keranjang) -->
+      <!-- Sticky Action Sheet Mobile (Jangkauan Jempol) -->
       ${selectedBean ? `
-        <div class="selected-bar">
-          <div style="flex: 1;">
+        <div class="selected-bar" id="selectedSheet">
+          <div>
             <strong>🍒 Buah Kopi Nomor ${selectedBean} Terpilih:</strong>
             <p>${escapeHtml(revealedBeans[selectedBean] || '')}</p>
           </div>
-          <div class="actions" style="margin-top: 6px;">
-            <button id="btnThrowBean" class="btn green sm" style="font-size: 14px; padding: 10px 16px;">
+          <div class="actions" style="gap: 8px;">
+            <button id="btnThrowBean" class="btn green" style="flex: 1; font-size: 14.5px;">
               🧺 Masukkan ke Keranjang
             </button>
             <button id="btnCancelBean" class="btn ghost sm">Batal</button>
@@ -403,7 +489,7 @@
 
       el.onclick = () => handleBeanClick(bId);
 
-      // Drag interaction (opsional)
+      // Drag interaction opsional
       el.onpointerdown = e => {
         if (revealedBeans[bId] && !thrownBeans[bId]) {
           el.dataset.dragStart = `${e.clientX},${e.clientY}`;
@@ -422,7 +508,7 @@
         const rect = basket.getBoundingClientRect();
         const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
 
-        if (dist > 40 && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        if (dist > 35 && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
           e.preventDefault();
           selectedBean = bId;
           handleThrowBean();
@@ -443,7 +529,6 @@
       return;
     }
 
-    // Buka teks buah kopi
     const bean = BEANS_DATA.find(b => b.id === bId);
     if (!bean) return;
 
@@ -452,6 +537,7 @@
     renderPlayfield();
   }
 
+  // Lempar ke keranjang dengan motion & efek jiggle
   function handleThrowBean() {
     if (!selectedBean || isBusy) return;
     const bId = selectedBean;
@@ -468,8 +554,15 @@
     thrownBeans[bId] = { correct: isCorrect, points };
     selectedBean = null;
 
+    // Animasi Keranjang Jiggle
+    const basket = $('#basketTarget');
+    if (basket) {
+      basket.classList.remove('jiggle');
+      void basket.offsetWidth; // trigger reflow
+      basket.classList.add('jiggle');
+    }
+
     let bonus = false;
-    // Golden Snitch: jika dapat 4 benar!
     if (correctCount === 4) {
       bonus = true;
       score += 100;
@@ -487,7 +580,7 @@
       setTimeout(() => {
         isBusy = false;
         finishQuiz();
-      }, 1200);
+      }, 1000);
       return;
     }
 
@@ -497,11 +590,11 @@
       feedbackMessage = '';
       if (gameStatus === 'playing') renderPlayfield();
       isBusy = false;
-    }, 2400);
+    }, 2200);
   }
 
   // ==========================================
-  // PENYELESAIAN KUIS & AUTO-SYNC KE SPREADSHEET
+  // SELESAI KUIS & AUTO-SYNC KE SPREADSHEET
   // ==========================================
   async function finishQuiz() {
     if (timerInterval) clearInterval(timerInterval);
@@ -509,7 +602,7 @@
     render();
     fireConfetti();
 
-    // Kirim otomatis ke Google Spreadsheet via API
+    // Simpan otomatis ke Google Spreadsheet via API
     try {
       await fetch(`${API_BASE}/scores`, {
         method: 'POST',
@@ -533,40 +626,43 @@
   // ==========================================
   function renderResult() {
     const screen = $('#screen');
-    const waText = `Halo! 🍒 Saya baru saja mendapatkan skor ${score} poin di Quiz Podcast DSPS (Kopi Ijen Challenge)! Coba kalahkan skor saya di sini: ${window.location.origin}`;
+    const waText = `Halo! 🍒 Saya baru saja meraih skor ${score} poin di Quiz Podcast DSPS Kopi Ijen (${playerEntity})! Coba kalahkan skor saya di sini: ${window.location.origin}`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
 
     screen.innerHTML = `
       <div class="panel">
-        <div class="panel-inner" style="max-width: 640px; margin: 0 auto; text-align: center;">
-          <div style="font-size: 56px; margin-bottom: 8px;">🎉 🏆 ☕</div>
-          <h2>Kuis Selesai! Kerja Bagus, ${escapeHtml(playerName)}!</h2>
-          <p class="muted">Asal Unit: <b>${escapeHtml(playerEntity)}</b></p>
+        <div class="panel-inner" style="max-width: 480px; margin: 0 auto; text-align: center;">
+          <div style="font-size: 52px; margin-bottom: 6px;">🎉 🏆 ☕</div>
+          <h2>Kuis Selesai! Kerja Luar Biasa!</h2>
+          <p class="muted small" style="margin-top: 2px;">
+            <b>${escapeHtml(playerName)}</b> · ${escapeHtml(playerEntity)}
+          </p>
 
           <!-- Kartu Nilai Akhir -->
-          <div style="background: linear-gradient(145deg, #fffcf0 0%, #fff7d6 100%); border: 2.5px solid #f5b027; border-radius: 20px; padding: 24px; margin: 20px 0; box-shadow: var(--shadow-pop);">
-            <small style="color: #8c630f; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">TOTAL SKOR AKHIR ANDA</small>
-            <div style="font-size: clamp(48px, 8vw, 64px); font-weight: 950; color: #16472b; margin: 6px 0;">
+          <div style="background: linear-gradient(145deg, #fffcf0 0%, #fff7d6 100%); border: 2.5px solid #f5b027; border-radius: 18px; padding: 20px; margin: 18px 0; box-shadow: var(--shadow-pop);">
+            <small style="color: #8c630f; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">TOTAL SKOR AKHIR ANDA</small>
+            <div style="font-size: clamp(44px, 10vw, 58px); font-weight: 950; color: #16472b; margin: 4px 0;">
               ${score}
             </div>
-            <p style="color: #3b5f48; font-weight: 700; font-size: 15px;">
-              ${correctCount === 4 ? '🌟 Sempurna! Anda berhasil memanen semua 4 buah kopi terbaik!' : `Anda berhasil menemukan ${correctCount} dari 4 jawaban benar.`}
+            <p style="color: #3b5f48; font-weight: 700; font-size: 14px;">
+              ${correctCount === 4 ? '🌟 Sempurna! Anda memanen semua 4 buah kopi terbaik!' : `Anda berhasil menemukan ${correctCount} dari 4 jawaban benar.`}
             </p>
+            <div class="small muted" style="margin-top: 4px;">Waktu pengerjaan: <b>${formatTime(elapsedSeconds)}</b></div>
           </div>
 
-          <div style="background: #eef6ec; border: 1.5px solid #c8d9be; border-radius: 12px; padding: 12px; font-size: 13.5px; color: #19462b; margin-bottom: 22px;">
-            🟢 <b>Tersimpan:</b> Data hasil kuis Anda otomatis tercatat di Google Spreadsheet.
+          <div style="background: #eef6ec; border: 1.5px solid #c8d9be; border-radius: 12px; padding: 12px; font-size: 13px; color: #19462b; margin-bottom: 20px;">
+            🟢 <b>Tercatat:</b> Nilai Anda otomatis masuk ke Google Spreadsheet resmi.
           </div>
 
-          <!-- Tombol Aksi -->
-          <div class="actions" style="justify-content: center; gap: 12px;">
-            <a href="${waUrl}" target="_blank" class="btn wa" style="font-size: 15px;">
+          <!-- Tombol Aksi Mobile -->
+          <div class="stack" style="gap: 10px;">
+            <a href="${waUrl}" target="_blank" class="btn wa">
               💬 Bagikan Skor ke WhatsApp
             </a>
-            <button id="btnViewLeaderboard" class="btn green" style="font-size: 15px;">
-              🏆 Lihat Papan Peringkat
+            <button id="btnViewLeaderboard" class="btn green">
+              🏆 Lihat Papan Peringkat PTPN Group
             </button>
-            <button id="btnPlayAgain" class="btn primary" style="font-size: 15px;">
+            <button id="btnPlayAgain" class="btn primary">
               🔄 Main Lagi
             </button>
           </div>
@@ -586,31 +682,27 @@
   }
 
   // ==========================================
-  // TAB 2: PAPAN PERINGKAT (GLOBAL LEADERBOARD)
+  // TAB 2: PAPAN PERINGKAT GLOBAL
   // ==========================================
   async function renderLeaderboard() {
     const screen = $('#screen');
     screen.innerHTML = `
       <div class="panel">
-        <div class="panel-inner">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+        <div class="panel-inner" style="max-width: 480px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
             <div>
-              <span class="eyebrow">🏆 Live Leaderboard 24/7</span>
-              <h2 style="margin-top: 4px;">Papan Peringkat Kopi Ijen</h2>
-              <p class="muted small">Data tersinkronisasi langsung dari Google Spreadsheet resmi.</p>
+              <span class="eyebrow">🏆 Papan Peringkat</span>
+              <h2 style="margin-top: 2px;">Klasemen PTPN Group</h2>
             </div>
-            <div class="actions">
-              <a href="${config.spreadsheetUrl}" target="_blank" class="btn ghost sm">📊 Buka Spreadsheet Asli</a>
-              <button id="btnRefreshLeaderboard" class="btn green sm">↻ Muat Ulang</button>
-            </div>
+            <button id="btnRefreshLeaderboard" class="btn green sm">↻ Muat Ulang</button>
           </div>
 
           <div id="leaderboardContent">
-            <p class="muted" style="text-align: center; padding: 30px 0;">Memuat peringkat dari Google Spreadsheet...</p>
+            <p class="muted small" style="text-align: center; padding: 24px 0;">Memuat peringkat dari Google Spreadsheet...</p>
           </div>
 
-          <div class="actions" style="margin-top: 24px; justify-content: center;">
-            <button id="btnPlayFromLeaderboard" class="btn primary">🍒 Ikut Main Kuis Sekarang!</button>
+          <div class="actions" style="margin-top: 18px; justify-content: center;">
+            <button id="btnPlayFromLeaderboard" class="btn primary" style="width: 100%;">🍒 Mainkan Kuis Sekarang!</button>
           </div>
         </div>
       </div>
@@ -634,32 +726,29 @@
       const res = await fetch(`${API_BASE}/scores?action=get_leaderboard`);
       const data = await res.json();
       const list = data.leaderboard || [];
-      cachedLeaderboard = list;
 
       if (!list.length) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 36px 14px;" class="muted">
-            <p>Belum ada data pemain tercatat.</p>
-            <p class="small">Jadilah orang pertama yang menyelesaikan kuis ini!</p>
+          <div style="text-align: center; padding: 30px 10px;" class="muted small">
+            Belum ada skor peserta. Jadilah yang pertama bermain!
           </div>
         `;
         return;
       }
 
-      // Top 3 Podium
       const top1 = list[0];
       const top2 = list[1];
       const top3 = list[2];
 
       container.innerHTML = `
-        <!-- Podium Top 3 -->
+        <!-- Podium Top 3 Mobile -->
         <div class="podium-grid">
           ${top2 ? `
             <div class="podium-card">
               <span class="podium-badge">🥈</span>
               <div class="podium-name">${escapeHtml(top2.name)}</div>
               <div class="podium-entity">${escapeHtml(top2.entity || '—')}</div>
-              <div class="podium-score">${top2.score} Poin</div>
+              <div class="podium-score">${top2.score}</div>
             </div>
           ` : '<div style="display:none"></div>'}
 
@@ -668,7 +757,7 @@
               <span class="podium-badge">👑 🥇</span>
               <div class="podium-name">${escapeHtml(top1.name)}</div>
               <div class="podium-entity">${escapeHtml(top1.entity || '—')}</div>
-              <div class="podium-score">${top1.score} Poin</div>
+              <div class="podium-score">${top1.score}</div>
             </div>
           ` : ''}
 
@@ -677,7 +766,7 @@
               <span class="podium-badge">🥉</span>
               <div class="podium-name">${escapeHtml(top3.name)}</div>
               <div class="podium-entity">${escapeHtml(top3.entity || '—')}</div>
-              <div class="podium-score">${top3.score} Poin</div>
+              <div class="podium-score">${top3.score}</div>
             </div>
           ` : '<div style="display:none"></div>'}
         </div>
@@ -687,11 +776,10 @@
           <table class="rank-table">
             <thead>
               <tr>
-                <th style="width: 50px;">Rank</th>
+                <th style="width: 44px;">Rank</th>
                 <th>Nama Peserta</th>
-                <th>Entitas / Unit</th>
-                <th>Benar</th>
-                <th style="text-align: right;">Total Skor</th>
+                <th>Entitas PTPN</th>
+                <th style="text-align: right;">Skor</th>
               </tr>
             </thead>
             <tbody>
@@ -700,17 +788,16 @@
                   <td><b>${p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : p.rank}</b></td>
                   <td><b>${escapeHtml(p.name)}</b></td>
                   <td>${escapeHtml(p.entity || '—')}</td>
-                  <td>${p.correctCount}/4 benar</td>
-                  <td style="text-align: right; font-size: 16px;"><b>${p.score}</b></td>
+                  <td style="text-align: right; font-size: 15px;"><b>${p.score}</b></td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
       `;
-    } catch (err) {
+    } catch {
       container.innerHTML = `
-        <div style="text-align: center; padding: 24px; color: #8c1e24;">
+        <div style="text-align: center; padding: 20px; color: #8c1e24;" class="small">
           Gagal memuat papan peringkat. Pastikan koneksi internet aktif.
         </div>
       `;
@@ -724,35 +811,32 @@
     const screen = $('#screen');
     screen.innerHTML = `
       <div class="panel">
-        <div class="panel-inner">
+        <div class="panel-inner" style="max-width: 480px; margin: 0 auto;">
           <span class="eyebrow">📖 Wawasan Mutu</span>
-          <h2>Rahasia Mengapa Kopi Ijen Begitu Istimewa</h2>
-          <p class="muted">Kopi Arabika dari Pegunungan Ijen (Bondowoso/Banyuwangi) memiliki cita rasa khas asam buah-buahan segar (*fruity*) dengan aroma floral yang diakui dunia internasional.</p>
+          <h2>Rahasia Mutu Kopi Ijen</h2>
+          <p class="muted small">Faktor-faktor yang menjadikan Kopi Ijen primadona di pasar kopi spesialti dunia:</p>
 
           <div class="edu-grid">
             <div class="edu-card">
               <h4>🌋 1. Tanah Vulkanik Kaya Hara</h4>
-              <p>Lereng Gunung Ijen kaya akan unsur hara alami dari abu vulkanik, terutama kalium dan magnesium, yang memberikan nutrisi optimal bagi pohon kopi.</p>
+              <p>Lereng Gunung Ijen kaya akan kalium & magnesium alami yang memberikan nutrisi optimal bagi pohon kopi.</p>
             </div>
-
             <div class="edu-card">
-              <h4>⛰️ 2. Ketinggian di Atas 1.000 mdpl</h4>
-              <p>Suhu sejuk di dataran tinggi memperlambat proses pematangan buah kopi, sehingga penumpukan gula alami dan senyawa aromatik di dalam biji menjadi sangat padat.</p>
+              <h4>⛰️ 2. Di Atas 1.000 mdpl</h4>
+              <p>Suhu sejuk dataran tinggi memperlambat pematangan, sehingga gula alami dan senyawa aromatik buah kopi sangat padat.</p>
             </div>
-
             <div class="edu-card">
               <h4>🍒 3. Petik Merah Selektif</h4>
-              <p>Hanya buah kopi yang benar-benar merah segar dan matang optimal (*cherry picking*) yang dipetik. Buah hijau atau setengah matang disortir agar rasa tidak getir.</p>
+              <p>Hanya buah merah segar matang optimal yang dipetik. Buah hijau dipisahkan agar rasa tidak getir.</p>
             </div>
-
             <div class="edu-card">
               <h4>🧺 4. Sortasi Ganda & Fermentasi</h4>
-              <p>Melalui proses double sortasi dan fermentasi alami selama 12–36 jam untuk mengunci kejernihan rasa (*clean cup*) dan keasaman sitrus yang menyegarkan.</p>
+              <p>Proses double sortasi dan fermentasi alami 12–36 jam untuk mengunci rasa bersih (*clean cup*) dan asam buah segar.</p>
             </div>
           </div>
 
-          <div class="actions" style="margin-top: 20px; justify-content: center;">
-            <button id="btnPlayFromEdu" class="btn primary">🍒 Mainkan Kuisnya Sekarang!</button>
+          <div class="actions" style="margin-top: 16px; justify-content: center;">
+            <button id="btnPlayFromEdu" class="btn primary" style="width: 100%;">🍒 Mainkan Kuis Sekarang!</button>
           </div>
         </div>
       </div>
@@ -766,10 +850,112 @@
   }
 
   // ==========================================
-  // SETUP GLOBAL CONTROLS
+  // PANEL ADMIN (PASSWORD: dsps)
+  // ==========================================
+  function updateAdminUIStatus() {
+    const isClosed = quizGlobalStatus === 'closed';
+    const badge = $('#badgeAdminStatus');
+    const text = $('#textAdminStatus');
+    const btn = $('#btnToggleQuizStatus');
+
+    if (badge) {
+      badge.textContent = isClosed ? '🔴 KUIS DITUTUP' : '🟢 KUIS DIBUKA';
+      badge.style.color = isClosed ? '#d32f2f' : '#1e704a';
+    }
+    if (text) {
+      text.innerHTML = isClosed
+        ? '🔴 KUIS DITUTUP (Peserta Tidak Bisa Bermain)'
+        : '🟢 KUIS DIBUKA (Peserta Bebas Bermain)';
+      text.style.color = isClosed ? '#8b1313' : '#124d31';
+    }
+    if (btn) {
+      btn.className = isClosed ? 'btn green' : 'btn danger';
+      btn.textContent = isClosed ? '▶ Buka Kuis Kembali' : '■ Tutup Kuis Sekarang';
+    }
+  }
+
+  function setupAdminModal() {
+    const modal = $('#adminModal');
+    const btnOpen = $('#btnAdminModal');
+    const btnClose = $('#btnCloseAdminModal');
+    const formLogin = $('#adminLoginForm');
+    const inputPass = $('#inputAdminPass');
+    const loginSection = $('#adminLoginSection');
+    const panelSection = $('#adminPanelSection');
+    const btnToggle = $('#btnToggleQuizStatus');
+    const btnLogout = $('#btnLogoutAdmin');
+
+    btnOpen.onclick = () => {
+      modal.classList.add('open');
+      if (isAdminLoggedIn) {
+        loginSection.style.display = 'none';
+        panelSection.style.display = 'block';
+        updateAdminUIStatus();
+      } else {
+        loginSection.style.display = 'block';
+        panelSection.style.display = 'none';
+        inputPass.value = '';
+        inputPass.focus();
+      }
+    };
+
+    btnClose.onclick = () => modal.classList.remove('open');
+
+    formLogin.onsubmit = async e => {
+      e.preventDefault();
+      const pass = inputPass.value.trim();
+      if (pass !== 'dsps') {
+        showToast('❌ Password Admin salah!');
+        inputPass.value = '';
+        inputPass.focus();
+        return;
+      }
+
+      isAdminLoggedIn = true;
+      adminPassword = pass;
+      loginSection.style.display = 'none';
+      panelSection.style.display = 'block';
+      updateAdminUIStatus();
+      showToast('✅ Berhasil masuk sebagai Admin');
+    };
+
+    btnToggle.onclick = async () => {
+      const targetStatus = quizGlobalStatus === 'open' ? 'closed' : 'open';
+      try {
+        const res = await fetch(`${API_BASE}/scores?action=admin_set_status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            password: adminPassword,
+            status: targetStatus
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          quizGlobalStatus = data.status;
+          updateAdminUIStatus();
+          showToast(data.message);
+          render();
+        } else {
+          showToast(data.error || 'Gagal mengubah status');
+        }
+      } catch {
+        showToast('Gagal menghubungi server');
+      }
+    };
+
+    btnLogout.onclick = () => {
+      isAdminLoggedIn = false;
+      adminPassword = '';
+      modal.classList.remove('open');
+      showToast('Admin berhasil keluar');
+    };
+  }
+
+  // ==========================================
+  // CONTROLS GLOBAL
   // ==========================================
   function setupControls() {
-    // Nav tabs switcher
     document.querySelectorAll('.nav-tab').forEach(btn => {
       btn.onclick = () => {
         currentTab = btn.dataset.tab;
@@ -777,7 +963,6 @@
       };
     });
 
-    // Audio toggle
     const audioBtn = $('#btnAudioToggle');
     if (audioBtn) {
       audioBtn.onclick = () => {
@@ -787,7 +972,6 @@
       };
     }
 
-    // Fullscreen toggle
     const fsBtn = $('#btnFullscreenToggle');
     if (fsBtn) {
       fsBtn.onclick = () => {
@@ -800,10 +984,13 @@
         }
       };
     }
+
+    setupAdminModal();
   }
 
-  function init() {
+  async function init() {
     setupControls();
+    await fetchQuizStatus();
     render();
   }
 
