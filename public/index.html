@@ -84,10 +84,10 @@
   <div class="modal-overlay" id="adminModal">
     <div class="modal-card" id="adminModalCard">
       <!-- 1. Form Login Admin -->
-      <div id="adminLoginSection">
-        <div style="font-size: 38px; text-align: center; margin-bottom: 6px;">🔒</div>
-        <h3 style="text-align: center; margin-bottom: 4px; color: #164229;">Masuk Panel Admin</h3>
-        <p class="muted small" style="text-align: center; margin-bottom: 16px;">
+      <div id="adminLoginSection" class="admin-login-wrap">
+        <div style="font-size: 42px; text-align: center; margin-bottom: 8px;">🔒</div>
+        <h3 style="text-align: center; margin-bottom: 4px; color: #164229; font-size: 20px;">Masuk Panel Admin Panitia</h3>
+        <p class="muted small" style="text-align: center; margin-bottom: 20px; line-height: 1.5;">
           Papan peringkat dan kontrol kuis hanya dapat diakses oleh Panitia/Admin. Masukkan kata sandi admin (<code>dsps</code>).
         </p>
         <form id="adminLoginForm" class="stack">
@@ -95,67 +95,76 @@
             <label class="field-label">Kata Sandi Admin</label>
             <input type="password" id="inputAdminPass" class="field" required placeholder="Masukkan kata sandi..." autocomplete="current-password">
           </div>
-          <button type="submit" class="btn primary" style="width: 100%;">Masuk Panel Admin →</button>
+          <button type="submit" class="btn primary" style="width: 100%; font-size: 15px; padding: 13px;">Masuk Panel Admin →</button>
           <button type="button" class="btn ghost sm" id="btnCloseAdminModal">Batal</button>
         </form>
       </div>
 
       <!-- 2. Dashboard Admin (Papan Peringkat & Kontrol Kuis) -->
-      <div id="adminPanelSection" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #e2ebd9; padding-bottom: 10px;">
-          <div>
-            <span class="eyebrow" style="font-size: 10.5px; padding: 2px 8px;">ADMINISTRATOR DSPS</span>
-            <h3 style="color: #174229; margin-top: 2px;">⚙️ Panel Admin Kuis</h3>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <button id="btnCloseAdminPanel" class="btn ghost sm" title="Tutup Panel">✕</button>
-          </div>
-        </div>
-
-        <!-- Kontrol Buka / Tutup Kuis -->
-        <div style="background: #eef6ec; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 14px; text-align: center; margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <small style="color: #4b6b55; font-weight: 800;">STATUS KUIS SAAT INI:</small>
-            <span id="badgeAdminStatus" class="eyebrow" style="font-size: 11px;">🟢 KUIS DIBUKA</span>
-          </div>
-          <div id="textAdminStatus" style="font-size: 15px; font-weight: 900; color: #124d31; margin-bottom: 10px;">
-            🟢 KUIS DIBUKA (Peserta Bebas Bermain)
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button id="btnToggleQuizStatus" class="btn danger sm" style="flex: 1;">
-              ■ Tutup Kuis Sekarang
-            </button>
-            <a href="https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit?gid=0" target="_blank" rel="noopener" class="btn green sm" style="flex: 1;">
-              📊 Buka Spreadsheet
-            </a>
-          </div>
-        </div>
-
-        <!-- Section Papan Peringkat Khusus Admin -->
-        <div class="admin-leaderboard-section">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-            <div>
-              <h4 style="color: #153c26; margin: 0; font-size: 16px;">🏆 Papan Peringkat Peserta</h4>
-              <small class="muted">Hanya dapat dilihat oleh Admin Panitia</small>
+      <div id="adminPanelSection" class="admin-panel-layout" style="display: none;">
+        <!-- Header Pinned Sticky (Tidak Pernah Terpotong Saat Scroll) -->
+        <header class="admin-panel-header">
+          <div class="admin-panel-title-area">
+            <div class="admin-badge-row">
+              <span class="eyebrow admin-eyebrow">ADMINISTRATOR DSPS</span>
+              <span id="badgeAdminStatus" class="admin-status-pill">🟢 KUIS DIBUKA</span>
             </div>
-            <button id="btnAdminRefreshScores" class="btn green sm">↻ Segarkan Data</button>
+            <h3 class="admin-panel-heading">⚙️ Panel Admin &amp; Papan Peringkat</h3>
+          </div>
+          <button id="btnCloseAdminPanel" class="btn-close-modal" title="Tutup Panel Admin" aria-label="Tutup Panel">✕</button>
+        </header>
+
+        <!-- Scrollable Body (Hanya Konten di Sini yang Scroll) -->
+        <div class="admin-panel-body">
+          <!-- Sleek Horizontal Status & Control Card -->
+          <div class="admin-ctrl-card">
+            <div class="admin-ctrl-info">
+              <div class="admin-ctrl-label">STATUS SISTEM KUIS:</div>
+              <div id="textAdminStatus" class="admin-ctrl-status-text">
+                🟢 KUIS DIBUKA (Peserta Bebas Bermain)
+              </div>
+            </div>
+            <div class="admin-ctrl-actions">
+              <button id="btnToggleQuizStatus" class="btn danger sm">
+                ■ Tutup Kuis Sekarang
+              </button>
+              <a href="https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit?gid=0" target="_blank" rel="noopener" class="btn green sm">
+                📊 Buka Spreadsheet ↗
+              </a>
+            </div>
           </div>
 
-          <!-- Input Cari Peserta -->
-          <div style="margin-bottom: 10px;">
-            <input type="text" id="inputSearchAdmin" class="field" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 Cari nama peserta atau entitas PTPN...">
-          </div>
+          <!-- Section Papan Peringkat Khusus Admin -->
+          <div class="admin-leaderboard-section">
+            <div class="admin-lb-head">
+              <div>
+                <h4 class="admin-lb-title">🏆 Papan Peringkat Peserta Kuis</h4>
+                <small class="muted">Data realtime tersinkronisasi otomatis dari Google Spreadsheet</small>
+              </div>
+              <button id="btnAdminRefreshScores" class="btn green sm">
+                ↻ Segarkan Data
+              </button>
+            </div>
 
-          <!-- Container Data Leaderboard -->
-          <div id="adminLeaderboardContainer">
-            <p class="muted small" style="text-align: center; padding: 20px;">Memuat data peringkat peserta dari Google Spreadsheet...</p>
+            <!-- Input Cari Peserta -->
+            <div class="admin-search-wrap">
+              <input type="text" id="inputSearchAdmin" class="field admin-search-input" placeholder="🔍 Cari nama peserta, nomor WhatsApp, atau entitas PTPN...">
+            </div>
+
+            <!-- Container Data Leaderboard -->
+            <div id="adminLeaderboardContainer">
+              <p class="muted small" style="text-align: center; padding: 24px;">Memuat data peringkat peserta dari Google Spreadsheet...</p>
+            </div>
           </div>
         </div>
 
-        <!-- Tombol Keluar Admin -->
-        <div style="margin-top: 16px; border-top: 1.5px solid #e2ebd9; padding-top: 12px; text-align: right;">
-          <button id="btnLogoutAdmin" class="btn ghost sm">🚪 Keluar Admin</button>
-        </div>
+        <!-- Pinned Footer -->
+        <footer class="admin-panel-footer">
+          <small class="admin-footer-note">
+            💡 Database terpusat di Google Spreadsheet resmi Holding Perkebunan Nusantara.
+          </small>
+          <button id="btnLogoutAdmin" class="btn ghost sm admin-btn-logout">🚪 Keluar Admin</button>
+        </footer>
       </div>
     </div>
   </div>

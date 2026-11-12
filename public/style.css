@@ -758,102 +758,238 @@ select.field {
   border: 1.5px solid #f29c95;
 }
 
-/* Leaderboard Podium Top 3 Mobile */
+/* ==========================================
+   LEADERBOARD PODIUM & MODERN DATA TABLE
+   ========================================== */
 .podium-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin: 16px 0;
+  gap: 14px;
+  margin: 14px 0 18px;
 }
 
 .podium-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 14px 8px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 12px;
   text-align: center;
-  border: 2px solid #e4eadf;
-  box-shadow: var(--shadow-pop);
+  border: 2px solid #e1e9dc;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 148px;
+  box-sizing: border-box;
 }
 
 .podium-card.first {
-  background: linear-gradient(160deg, #fffcf0 0%, #fff7d6 100%);
+  background: linear-gradient(160deg, #fffcf2 0%, #fff6d8 100%);
   border-color: #f5b027;
   transform: translateY(-4px);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 8px 24px rgba(245, 176, 39, 0.25);
+}
+
+.podium-card.silver {
+  background: linear-gradient(160deg, #ffffff 0%, #f4f6f9 100%);
+  border-color: #cfd8dc;
+}
+
+.podium-card.bronze {
+  background: linear-gradient(160deg, #ffffff 0%, #fdf8f4 100%);
+  border-color: #e2cebf;
 }
 
 .podium-badge {
-  font-size: 24px;
-  margin-bottom: 4px;
+  font-size: 28px;
+  margin-bottom: 2px;
+  line-height: 1;
   display: block;
+}
+
+.podium-rank-tag {
+  font-size: 10px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 99px;
+  display: inline-block;
+  margin: 0 auto 6px;
+  background: #edf3e9;
+  color: #275239;
+}
+
+.podium-rank-tag.gold {
+  background: #fdf0cd;
+  color: #925f05;
 }
 
 .podium-name {
   font-weight: 900;
-  font-size: 13px;
-  color: #163825;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 14px;
+  color: #163e26;
+  line-height: 1.35;
+  margin-bottom: 2px;
+  word-break: break-word;
 }
 
 .podium-entity {
-  font-size: 10.5px;
-  color: #637768;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 11.5px;
+  color: #5c7564;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  word-break: break-word;
 }
 
 .podium-score {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 950;
   color: #114c2c;
-  margin-top: 4px;
+  background: #eef6ec;
+  border-radius: 99px;
+  padding: 4px 12px;
+  display: inline-block;
+  margin: 0 auto;
+  border: 1px solid #cbdbc1;
 }
 
-/* Leaderboard Table */
+.podium-card.first .podium-score {
+  background: #fef0c7;
+  color: #925f05;
+  border-color: #f6c855;
+  font-size: 18px;
+}
+
+/* Modern Data Table */
 .rank-table-wrap {
   overflow-x: auto;
-  margin: 12px 0;
+  max-height: 440px;
+  overflow-y: auto;
+  margin: 10px 0;
   border-radius: 14px;
-  border: 1px solid #dbe2d6;
+  border: 1.5px solid #d9e6d3;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  scrollbar-width: thin;
+  scrollbar-color: #cbdbc1 #f5f9f2;
+}
+
+.rank-table-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.rank-table-wrap::-webkit-scrollbar-track {
+  background: #f5f9f2;
+}
+.rank-table-wrap::-webkit-scrollbar-thumb {
+  background: #cbdbc1;
+  border-radius: 99px;
 }
 
 .rank-table {
   width: 100%;
-  border-collapse: collapse;
-  color: var(--text-dark);
-  background: #fff;
+  min-width: 840px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #1a3926;
   font-size: 13px;
 }
 
-.rank-table th, .rank-table td {
-  padding: 10px 10px;
-  border-bottom: 1px solid #e1e7dc;
-  text-align: left;
-}
-
 .rank-table th {
+  position: sticky;
+  top: 0;
+  background: #17452d;
+  color: #ffffff;
   font-size: 11px;
+  font-weight: 900;
   text-transform: uppercase;
-  color: #4b6452;
-  background: #eef3e9;
+  letter-spacing: 0.06em;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 2px solid #0f301f;
+  z-index: 3;
+  white-space: nowrap;
 }
 
-.rank-table tr:hover td {
-  background: #f6faf2;
+.rank-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e8f0e4;
+  vertical-align: middle;
 }
 
-.rank-table td:last-child {
-  text-align: right;
-  font-weight: 900;
+.rank-table tbody tr:hover td {
+  background: #f4faf2;
 }
 
-.rank-1 td {
-  background: #fff8df !important;
-  color: #7b5500;
-  font-weight: 900;
+.rank-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Rank highlight */
+.rank-table tr.rank-1 td {
+  background: #fffcf0 !important;
+}
+.rank-table tr.rank-2 td {
+  background: #f8fafc !important;
+}
+.rank-table tr.rank-3 td {
+  background: #fdfaf6 !important;
+}
+
+/* WhatsApp Link Pill in Table */
+.tbl-wa-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #eef9f1;
+  color: #15803d;
+  border: 1px solid #b7dfc0;
+  border-radius: 99px;
+  padding: 4px 10px;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 11.5px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.tbl-wa-link:hover {
+  background: #25d366;
+  color: #ffffff;
+  border-color: #1ea952;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.35);
+}
+
+.tbl-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 800;
+  background: #eef4eb;
+  color: #275239;
+  white-space: nowrap;
+}
+
+.tbl-badge.perfect, .tbl-badge.good {
+  background: #eaf8ee;
+  color: #13773b;
+  border: 1px solid #b7dfc0;
+}
+
+.tbl-badge.wrong {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.tbl-score-badge {
+  font-size: 15px;
+  font-weight: 950;
+  color: #17452d;
+  white-space: nowrap;
 }
 
 /* Edu Cards */
@@ -915,17 +1051,21 @@ select.field {
   animation: popToast 0.22s ease-out;
 }
 
-/* Modal Admin */
+/* ==========================================
+   MODAL ADMIN SYSTEM (RESPONSIVE & CLEAN)
+   ========================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(8, 24, 16, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 10000;
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 14px;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .modal-overlay.open {
@@ -933,30 +1073,332 @@ select.field {
 }
 
 .modal-card {
-  background: #fffdf7;
+  background: #ffffff;
   color: #173323;
   width: 100%;
-  max-width: 450px;
+  max-width: 440px;
   max-height: 92vh;
-  overflow-y: auto;
-  border-radius: 20px;
-  padding: 22px 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   border: 2px solid var(--gold-primary);
   animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition: max-width 0.25s ease;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: max-width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.25s ease;
 }
 
+/* 1. Tampilan Form Login Modal */
+.admin-login-wrap {
+  padding: 30px 24px;
+}
+
+/* 2. Tampilan Dashboard Admin Wide */
 .modal-card.admin-wide {
-  max-width: 680px;
+  max-width: 1040px;
+  width: 95vw;
+  height: min(860px, 92vh);
+  max-height: 92vh;
 }
 
-.admin-leaderboard-section {
-  background: #fbfdf9;
-  border: 1.5px solid #d8e4d2;
+.admin-panel-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Header Pinned Sticky */
+.admin-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 22px;
+  background: #f7faf5;
+  border-bottom: 1.5px solid #dce8d5;
+  flex-shrink: 0;
+}
+
+.admin-panel-title-area {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-eyebrow {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: #e4eee0;
+  color: #164229;
+  border-radius: 99px;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+}
+
+.admin-status-pill {
+  font-size: 11px;
+  font-weight: 850;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: #eef6ec;
+  color: #1b633b;
+  border: 1px solid #c5ddbe;
+}
+
+.admin-panel-heading {
+  color: #153c26;
+  font-size: 18px;
+  font-weight: 950;
+  margin: 3px 0 0;
+}
+
+.btn-close-modal {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #cbdbc1;
+  background: #ffffff;
+  color: #244b33;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-close-modal:hover {
+  background: #eef6ea;
+  border-color: #185232;
+  color: #113c24;
+  transform: scale(1.06);
+}
+
+/* Scrollable Body */
+.admin-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbdbc1 #f5f9f2;
+}
+
+.admin-panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-panel-body::-webkit-scrollbar-track {
+  background: #f5f9f2;
+}
+.admin-panel-body::-webkit-scrollbar-thumb {
+  background: #cbdbc1;
+  border-radius: 99px;
+}
+
+/* Status & Control Card */
+.admin-ctrl-card {
+  background: linear-gradient(135deg, #f2f8ee 0%, #e8f3e3 100%);
+  border: 1.5px solid #c7dac0;
   border-radius: 16px;
-  padding: 14px;
-  margin-top: 14px;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.admin-ctrl-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-ctrl-label {
+  font-size: 10.5px;
+  font-weight: 850;
+  color: #4b6b55;
+  letter-spacing: 0.05em;
+}
+
+.admin-ctrl-status-text {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: #124d31;
+}
+
+.admin-ctrl-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Leaderboard Section Container */
+.admin-leaderboard-section {
+  background: #ffffff;
+  border: 1.5px solid #dce8d5;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.admin-lb-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.admin-lb-title {
+  color: #143d26;
+  font-size: 17px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.admin-search-wrap {
+  margin-bottom: 14px;
+}
+
+.admin-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  border-radius: 12px;
+  border: 1.5px solid #c9dbc2;
+  background: #fafdf8;
+  color: #173824;
+  box-sizing: border-box;
+}
+
+.admin-search-input:focus {
+  background: #ffffff;
+  border-color: #1f6b43;
+  box-shadow: 0 0 0 3px rgba(31, 107, 67, 0.15);
+}
+
+/* Stats Summary Cards */
+.admin-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.admin-stat-card {
+  background: #fbfdf9;
+  border: 1.5px solid #d8e6d2;
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.admin-stat-card small {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #557560;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+}
+
+.admin-stat-card strong {
+  font-size: 18px;
+  font-weight: 950;
+  color: #15452a;
+  display: block;
+  margin-top: 2px;
+}
+
+.admin-stat-card.highlight {
+  background: #fffcf0;
+  border-color: #f7ce68;
+}
+
+.admin-stat-card.highlight strong {
+  color: #926402;
+}
+
+/* Pinned Footer */
+.admin-panel-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 22px;
+  background: #f7faf5;
+  border-top: 1.5px solid #dce8d5;
+  flex-shrink: 0;
+}
+
+.admin-footer-note {
+  color: #5d7565;
+  font-size: 11.5px;
+}
+
+.admin-btn-logout {
+  color: #b91c1c;
+  border-color: #fca5a5;
+  background: #ffffff;
+  font-weight: 800;
+}
+
+.admin-btn-logout:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* Responsif Mobile Admin */
+@media (max-width: 640px) {
+  .modal-card.admin-wide {
+    width: 96vw;
+    height: 94vh;
+    border-radius: 18px;
+  }
+  .admin-panel-header, .admin-panel-body, .admin-panel-footer {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .admin-ctrl-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-ctrl-actions {
+    flex-direction: column;
+  }
+  .admin-ctrl-actions .btn {
+    width: 100%;
+  }
+  .admin-stats-row {
+    grid-template-columns: 1fr;
+  }
+  .podium-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .podium-card {
+    min-height: auto;
+    padding: 12px;
+  }
+  .admin-panel-footer {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
 }
 
 /* Podcast YouTube Embed Card */

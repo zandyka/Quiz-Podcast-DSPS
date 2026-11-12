@@ -1513,17 +1513,22 @@
     const top1 = list[0];
     const top2 = list[1];
     const top3 = list[2];
+    const avgScore = cachedLeaderboard.length ? Math.round(cachedLeaderboard.reduce((a, b) => a + (b.score || 0), 0) / cachedLeaderboard.length) : 0;
 
     container.innerHTML = `
-      <!-- Ringkasan Statistik Singkat -->
-      <div style="display: flex; gap: 8px; margin-bottom: 12px; justify-content: space-between;">
-        <div style="background: #eef6ec; border-radius: 10px; padding: 8px 12px; flex: 1; text-align: center;">
-          <small class="muted" style="font-size: 10px; display: block;">TOTAL PESERTA</small>
-          <strong style="color: #174229; font-size: 16px;">${cachedLeaderboard.length}</strong>
+      <!-- Ringkasan Statistik Singkat 3 Kolom -->
+      <div class="admin-stats-row">
+        <div class="admin-stat-card">
+          <small>Total Peserta</small>
+          <strong>${cachedLeaderboard.length}</strong>
         </div>
-        <div style="background: #fff8df; border-radius: 10px; padding: 8px 12px; flex: 1; text-align: center;">
-          <small class="muted" style="font-size: 10px; display: block;">SKOR TERTINGGI</small>
-          <strong style="color: #8c6000; font-size: 16px;">${cachedLeaderboard[0]?.score || 0}</strong>
+        <div class="admin-stat-card highlight">
+          <small>Skor Tertinggi</small>
+          <strong>${cachedLeaderboard[0]?.score || 0} Poin</strong>
+        </div>
+        <div class="admin-stat-card">
+          <small>Rata-rata Skor</small>
+          <strong>${avgScore} Poin</strong>
         </div>
       </div>
 
@@ -1531,62 +1536,96 @@
       ${!searchTerm && cachedLeaderboard.length >= 1 ? `
         <div class="podium-grid">
           ${top2 ? `
-            <div class="podium-card">
+            <div class="podium-card silver">
               <span class="podium-badge">🥈</span>
-              <div class="podium-name">${escapeHtml(top2.name)}</div>
-              <div class="podium-entity">${escapeHtml(top2.entity || '—')}</div>
-              <div class="podium-score">${top2.score}</div>
+              <div class="podium-rank-tag">JUARA 2</div>
+              <div class="podium-name" title="${escapeHtml(top2.name)}">${escapeHtml(top2.name)}</div>
+              <div class="podium-entity" title="${escapeHtml(top2.entity || '—')}">${escapeHtml(top2.entity || '—')}</div>
+              <div class="podium-score">${top2.score} Poin</div>
             </div>
           ` : '<div style="display:none"></div>'}
 
           ${top1 ? `
             <div class="podium-card first">
               <span class="podium-badge">👑 🥇</span>
-              <div class="podium-name">${escapeHtml(top1.name)}</div>
-              <div class="podium-entity">${escapeHtml(top1.entity || '—')}</div>
-              <div class="podium-score">${top1.score}</div>
+              <div class="podium-rank-tag gold">JUARA 1</div>
+              <div class="podium-name" title="${escapeHtml(top1.name)}">${escapeHtml(top1.name)}</div>
+              <div class="podium-entity" title="${escapeHtml(top1.entity || '—')}">${escapeHtml(top1.entity || '—')}</div>
+              <div class="podium-score">${top1.score} Poin</div>
             </div>
           ` : ''}
 
           ${top3 ? `
-            <div class="podium-card">
+            <div class="podium-card bronze">
               <span class="podium-badge">🥉</span>
-              <div class="podium-name">${escapeHtml(top3.name)}</div>
-              <div class="podium-entity">${escapeHtml(top3.entity || '—')}</div>
-              <div class="podium-score">${top3.score}</div>
+              <div class="podium-rank-tag">JUARA 3</div>
+              <div class="podium-name" title="${escapeHtml(top3.name)}">${escapeHtml(top3.name)}</div>
+              <div class="podium-entity" title="${escapeHtml(top3.entity || '—')}">${escapeHtml(top3.entity || '—')}</div>
+              <div class="podium-score">${top3.score} Poin</div>
             </div>
           ` : '<div style="display:none"></div>'}
         </div>
       ` : ''}
 
-      <!-- Tabel Peringkat Lengkap Peserta -->
+      <!-- Tabel Peringkat Lengkap Peserta Modern -->
       <div class="rank-table-wrap">
         <table class="rank-table">
           <thead>
             <tr>
-              <th style="width: 44px;">Rank</th>
-              <th>Nama Peserta</th>
-              <th>Entitas PTPN</th>
-              <th>No. WhatsApp</th>
-              <th>R1 (Petik)</th>
-              <th>R2 (Budaya)</th>
-              <th>Waktu</th>
-              <th style="text-align: right;">Total Skor</th>
+              <th style="width: 50px; text-align: center;">Rank</th>
+              <th style="min-width: 140px;">Nama Peserta</th>
+              <th style="min-width: 190px;">Entitas PTPN Group</th>
+              <th style="min-width: 130px; text-align: center;">No. WhatsApp</th>
+              <th style="min-width: 90px; text-align: center;">R1 (Petik)</th>
+              <th style="min-width: 140px; text-align: center;">R2 (Budaya)</th>
+              <th style="min-width: 80px; text-align: center;">Waktu</th>
+              <th style="min-width: 90px; text-align: right;">Total Skor</th>
             </tr>
           </thead>
           <tbody>
-            ${list.map(p => `
-              <tr class="${p.rank === 1 ? 'rank-1' : ''}">
-                <td><b>${p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : p.rank}</b></td>
-                <td><b>${escapeHtml(p.name)}</b></td>
-                <td><small>${escapeHtml(p.entity || '—')}</small></td>
-                <td><small style="font-family: monospace; color: #166534; font-weight: 700;">${escapeHtml(p.whatsapp || '—')}</small></td>
-                <td><small>${p.correctCount}/4</small></td>
-                <td><small style="font-weight: 700; color: ${p.r2Score > 0 ? '#15803d' : '#854d0e'};">${escapeHtml(p.r2Answer || '—')}</small></td>
-                <td><small>${escapeHtml(p.duration || '—')}</small></td>
-                <td style="text-align: right; font-size: 14.5px;"><b>${p.score}</b></td>
-              </tr>
-            `).join('')}
+            ${list.map(p => {
+              const cleanWa = String(p.whatsapp || '').replace(/[^0-9]/g, '');
+              const waLink = cleanWa.length >= 8 ? `https://wa.me/${cleanWa.startsWith('0') ? '62' + cleanWa.slice(1) : (cleanWa.startsWith('62') ? cleanWa : '62' + cleanWa)}` : '';
+
+              return `
+                <tr class="${p.rank === 1 ? 'rank-1' : p.rank === 2 ? 'rank-2' : p.rank === 3 ? 'rank-3' : ''}">
+                  <td style="text-align: center;">
+                    <b>${p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : p.rank}</b>
+                  </td>
+                  <td>
+                    <div style="font-weight: 850; color: #164229;">${escapeHtml(p.name)}</div>
+                  </td>
+                  <td>
+                    <div style="font-size: 12px; color: #3b5745; line-height: 1.35;">${escapeHtml(p.entity || '—')}</div>
+                  </td>
+                  <td style="text-align: center;">
+                    ${waLink ? `
+                      <a href="${waLink}" target="_blank" rel="noopener" class="tbl-wa-link" title="Hubungi peserta di WhatsApp">
+                        💬 ${escapeHtml(p.whatsapp)}
+                      </a>
+                    ` : `
+                      <span class="muted" style="font-size: 11px;">${escapeHtml(p.whatsapp || '—')}</span>
+                    `}
+                  </td>
+                  <td style="text-align: center;">
+                    <span class="tbl-badge ${p.correctCount === 4 ? 'perfect' : 'normal'}">
+                      ${p.correctCount} / 4 ${p.correctCount === 4 ? '⭐' : ''}
+                    </span>
+                  </td>
+                  <td style="text-align: center;">
+                    <span class="tbl-badge ${p.r2Score > 0 ? 'good' : 'wrong'}">
+                      ${escapeHtml(p.r2Answer || '—')}
+                    </span>
+                  </td>
+                  <td style="text-align: center;">
+                    <small class="muted" style="font-weight: 700;">${escapeHtml(p.duration || '—')}</small>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="tbl-score-badge">${p.score}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       </div>
@@ -1613,14 +1652,22 @@
       modal.classList.add('open');
       if (isAdminLoggedIn) {
         loginSection.style.display = 'none';
-        panelSection.style.display = 'block';
-        if (modalCard) modalCard.classList.add('admin-wide');
+        panelSection.style.display = 'flex';
+        if (modalCard) {
+          modalCard.classList.add('admin-wide');
+          modalCard.scrollTop = 0;
+        }
+        const pBody = $('.admin-panel-body');
+        if (pBody) pBody.scrollTop = 0;
         updateAdminUIStatus();
         loadAdminLeaderboard();
       } else {
         loginSection.style.display = 'block';
         panelSection.style.display = 'none';
-        if (modalCard) modalCard.classList.remove('admin-wide');
+        if (modalCard) {
+          modalCard.classList.remove('admin-wide');
+          modalCard.scrollTop = 0;
+        }
         inputPass.value = '';
         setTimeout(() => inputPass.focus(), 150);
       }
@@ -1645,8 +1692,13 @@
       isAdminLoggedIn = true;
       adminPassword = pass;
       loginSection.style.display = 'none';
-      panelSection.style.display = 'block';
-      if (modalCard) modalCard.classList.add('admin-wide');
+      panelSection.style.display = 'flex';
+      if (modalCard) {
+        modalCard.classList.add('admin-wide');
+        modalCard.scrollTop = 0;
+      }
+      const pBody = $('.admin-panel-body');
+      if (pBody) pBody.scrollTop = 0;
       updateAdminUIStatus();
       loadAdminLeaderboard();
       showToast('✅ Berhasil masuk sebagai Admin DSPS');
@@ -1693,6 +1745,8 @@
       adminPassword = '';
       cachedLeaderboard = [];
       if (modalCard) modalCard.classList.remove('admin-wide');
+      loginSection.style.display = 'block';
+      panelSection.style.display = 'none';
       modal.classList.remove('open');
       showToast('Admin berhasil keluar');
     };
