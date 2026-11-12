@@ -1,0 +1,21 @@
+{
+  "name": "kopi-ijen-challenge",
+  "version": "2.0.0",
+  "description": "Coffee Bean Challenge - Kuis Kopi Ijen Multiplayer dengan Host Dashboard, Pengatur Skor, Leaderboard, dan Integrasi Google Spreadsheet",
+  "main": "api/game.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "quiz",
+    "game",
+    "kopi-ijen",
+    "multiplayer",
+    "google-sheets",
+    "vercel"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}

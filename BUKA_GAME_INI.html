@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Podcast DSPS | Launcher</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(165deg, #0e271d 0%, #1a4433 100%);
+      color: #fffdf5;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: #fdfaf2;
+      color: #1a2f23;
+      border-radius: 24px;
+      max-width: 620px;
+      width: 100%;
+      padding: 34px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+    h1 {
+      color: #123324;
+      margin: 0 0 10px;
+      font-size: 26px;
+    }
+    p {
+      color: #55695c;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .options {
+      display: grid;
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 20px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 16px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+    .btn-primary {
+      background: #f5b027;
+      color: #312104;
+    }
+    .btn-green {
+      background: #256b4a;
+      color: white;
+    }
+    .box {
+      background: #eef3e8;
+      border: 1.5px solid #cbdbc1;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      color: #2b4534;
+      line-height: 1.6;
+    }
+    code {
+      background: #dee8d5;
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-weight: 700;
+      color: #17422b;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size: 38px; margin-bottom: 10px;">☕ 🍒</div>
+    <h1>Quiz Podcast DSPS (Kopi Ijen Challenge)</h1>
+    <p>Game kuis budaya interaktif dengan peran <b>Host (Pembuat Game & Pengatur Skor)</b> dan <b>Peserta (Penjawab Quiz)</b>, dilengkapi QR Code, Leaderboard langsung, dan terhubung ke Google Spreadsheet.</p>
+
+    <div class="options">
+      <a href="public/index.html" class="btn btn-primary">
+        ▶ Buka Game Sekarang (Langsung di Browser)
+      </a>
+      <a href="https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit#gid=0" target="_blank" class="btn btn-green">
+        📊 Buka Google Spreadsheet Database
+      </a>
+    </div>
+
+    <div class="box">
+      <b>🚀 Menjalankan Server Lokal / Multiplayer:</b>
+      <div style="margin-top: 6px;">
+        1. Buka terminal di folder ini, lalu ketik: <code>node server.js</code><br>
+        2. Buka browser di: <code>http://localhost:3000</code><br>
+        3. Untuk deploy publik online: jalankan <code>vercel</code> di terminal.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
