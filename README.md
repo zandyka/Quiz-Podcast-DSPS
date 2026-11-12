@@ -1,5 +1,5 @@
 # Life at PTPN Quiz — Holding Perkebunan Nusantara 🌿
-*(Kata Kalcer Podcast Interactive Quiz · Logo Resmi Life at PTPN · Sinkronisasi Nomor WhatsApp)*
+*(Kata Kalcer Podcast Interactive Quiz · 2 Ronde Permainan · Ronde 2 Pilihan Ganda Nilai Budaya · Sinkronisasi Spreadsheet)*
 
 Repository GitHub: **[https://github.com/zandyka/Quiz-Podcast-DSPS.git](https://github.com/zandyka/Quiz-Podcast-DSPS.git)**
 
@@ -9,7 +9,37 @@ Game kuis interaktif mobile-first bertema **Kopi Ijen** yang dirancang khusus un
 
 ## 🌟 Fitur Utama & Pembaruan Sistem
 
-### 1. 🎨 Logo Resmi Life at PTPN & Identitas Baru
+### 1. 🎯 Ronde 2: Pilihan Ganda Nilai Budaya Planters
+* **Sistem 2 Ronde Berkesinambungan**:
+  * **Ronde 1 (Petik Buah Kopi Ijen)**: Memilih 4 buah kopi terbaik yang memuat faktor mutu Kopi Ijen dari 8 pilihan (Benar: **+100 poin**, Salah: **-50 poin**, Bonus Sapu Bersih: **+100 poin**). Maksimal skor Ronde 1: 500 poin.
+  * **Transisi Antar Ronde**: Layar jeda interaktif menampilkan perolehan sementara Ronde 1 dan petunjuk masuk ke Ronde 2.
+  * **Ronde 2 (Soal Pilihan Ganda Nilai Budaya)**:
+    * **Pertanyaan**: *"Apa nilai budaya yang tercantum dalam podcast jejak kopi nusantara?"*
+    * **Pilihan Jawaban**:
+      * A. `Continuous learning`
+      * B. `Excellence` (**Kunci Jawaban Tepat — +100 poin**)
+      * C. `Owner’s mindset`
+      * D. `Networking`
+    * **Fitur Edukatif**: Highlight otomatis opsi yang benar (hijau) dan salah (merah) beserta kartu penjelasan nilai budaya *Excellence* sebagai pilar planters PTPN Group.
+* **Total Skor Maksimal**: **600 poin** (R1 500 + R2 100).
+* **Layar Hasil**: Menampilkan perolehan Total Skor dengan rincian breakdown dua ronde (Ronde 1 & Ronde 2).
+
+### 2. 📊 Sinkronisasi Google Spreadsheet Rapi (19 Kolom Standar)
+Setiap pengiriman kuis otomatis tercatat di Google Spreadsheet resmi dengan susunan 19 kolom lengkap:
+1. **Nama Peserta**
+2. **Entitas PTPN Group**
+3. **Nomor WhatsApp** *(di sebelah kanan kolom Entitas)*
+4. **Total Skor Akhir** *(Akumulasi Ronde 1 + Ronde 2)*
+5. **R1: Jumlah Benar** *(contoh: 4 / 4)*
+6. **R1: Jumlah Salah**
+7. **R1: Bonus Sapu Bersih** *(Ya (+100) / Tidak)*
+8. **R2: Jawaban Nilai Budaya** *(contoh: Excellence (Benar +100))*
+9. **R2: Poin Ronde 2** *(100 / 0)*
+10. **Durasi Pengerjaan** *(mm:ss)*
+11. **Waktu Submit (WIB)**
+12. s.d. 19. **R1: Soal 1 s.d. 8 (Rincian Buah Kopi Ijen)**
+
+### 3. 🎨 Logo Resmi Life at PTPN & Identitas Baru
 * **Logo Life at PTPN**: Menggantikan logo cangkir kopi dan buah ceri dengan logo visual resmi **Life at PTPN** berlatar kartu bersih.
 * **Branding Resmi**:
   * Judul Utama: **Life at PTPN Quiz**
@@ -18,46 +48,37 @@ Game kuis interaktif mobile-first bertema **Kopi Ijen** yang dirancang khusus un
   * Teks Badge Podcast: **Kuis podcast jejak kopi nusantara**
   * Bahasa Ramah: Seluruh kata ganti disesuaikan menjadi **kamu** (lebih akrab & dinamis).
 
-### 2. 📱 Input Nomor WhatsApp & Sinkronisasi Spreadsheet
+### 4. 📱 Input Nomor WhatsApp Aktif
 * **Formulir Pendaftaran**: Dilengkapi input **Nomor WhatsApp Aktif** tepat di bawah menu pilihan Entitas PTPN.
-* **Kolom Spreadsheet (17 Kolom)**:
-  * Kolom C disisipkan sebagai **Nomor WhatsApp** (berada tepat di sebelah kanan kolom Entitas PTPN Group).
-  * Data terkirim secara otomatis melalui Google Apps Script Web App.
 * **Tampilan Admin**: Kolom No. WhatsApp tampil langsung di tabel Papan Peringkat Admin untuk memudahkan konfirmasi pemenang.
 
-### 3. 🎵 Musik Jingle PTPN (One PTPN One Culture)
+### 5. 🎵 Musik Jingle PTPN (One PTPN One Culture)
 * **Audio Resmi MP3**: Memutar audio jingle resmi *One PTPN One Culture* (`audio/jingle-ptpn.mp3`).
 * **Default Menyala**: Musik otomatis aktif saat website dibuka dengan fallback interaksi sentuhan layar.
 * **Kontrol Musik di Topbar**: Tombol `🎵 Jingle PTPN` dengan animasi gelombang equalizer (*equalizer waves*).
 
-### 2. 🔒 Papan Peringkat Khusus Admin (Kata Sandi: `dsps`)
+### 6. 🔒 Papan Peringkat Khusus Admin (Kata Sandi: `dsps`)
 * **Privasi Skor Peserta**: Papan peringkat (*leaderboard*) kini **hanya dapat dilihat oleh Panitia/Admin** melalui panel admin yang diproteksi sandi `dsps`.
 * **Peserta Biasa**: Setelah kuis selesai, peserta melihat ringkasan skor pribadi dan notifikasi bahwa data telah tersimpan di Google Spreadsheet. Papan peringkat tidak lagi ditampilkan ke publik.
 * **Fitur Panel Admin**:
   * 🟢/🔴 **Kontrol Status Kuis**: Buka atau tutup kuis secara instan.
   * 📊 **Tautan Langsung Google Spreadsheet**: Buka database spreadsheet dengan 1 klik.
-  * 👑 **Podium Top 3 & Klasemen Lengkap**: Memuat nama peserta, asal entitas, skor, jumlah benar, durasi, dan waktu pengerjaan.
+  * 👑 **Podium Top 3 & Klasemen Lengkap**: Memuat nama peserta, asal entitas, no. whatsapp, nilai Ronde 1, nilai Ronde 2, waktu, dan total skor.
   * 🔍 **Fitur Pencarian**: Cari nama peserta atau entitas PTPN tertentu.
 
-### 3. 📖 Sederhanakan Tampilan (Tab Edukasi Dihilangkan)
-* Navigasi publik dipangkas menjadi 2 fokus utama yang sangat ramah non-IT dan pengguna smartphone:
-  1. `🍒 Main Kuis & Simulasi`
-  2. `🎬 Podcast Kata Kalcer`
-
-### 4. 🎬 Sematan Video YouTube Podcast Kata Kalcer
+### 7. 🎬 Sematan Video YouTube Podcast Kata Kalcer
 * **Episode Resmi Life at PTPN**: Menyematkan langsung video podcast YouTube episode *"Rahasia di Balik Cita Rasa Kopi Ijen!"* (`alpL3rtyaLU`).
 * **Kalimat Penjelas**: Dilengkapi kalimat *(Tonton Podcast Kata Kalcer episode Rahasia di Balik Cita Rasa Kopi Ijen)* pada bagian atas dan bawah pemutar video.
 * **Tautan Langsung Aplikasi**: Tombol pintas untuk menonton langsung di aplikasi YouTube.
 
-### 5. 🧪 Mode Simulasi Interaktif (Tutorial Latihan)
-* Sebelum bermain di kuis utama (8 buah kopi), peserta dapat mencoba **Simulasi Tutorial Interaktif** terlebih dahulu.
+### 8. 🧪 Mode Simulasi Interaktif (Tutorial Latihan)
+* Sebelum bermain di kuis utama, peserta dapat mencoba **Simulasi Tutorial Interaktif** terlebih dahulu.
 * **Soal Simulasi**: *"Apa saja jenis kopi yang diproduksi PTPN?"*
   * **Arabika** → ✅ Benar (+100 poin)
   * **Robusta** → ✅ Benar (+100 poin)
   * **Liberika** → ✅ Benar (+100 poin)
   * **Excelsa** → ❌ Salah (-50 poin)
 * Lengkap dengan animasi petik buah ke keranjang, bunyi sound effect, konfeti, dan penjelasan edukatif untuk masing-masing varietas kopi.
-* Setelah simulasi selesai, peserta langsung diarahkan ke Kuis Utama Kopi Ijen.
 
 ---
 
@@ -81,8 +102,7 @@ Bagian unit kerja merupakan dropdown resmi seluruh entitas **PTPN Group**:
 
 ## 📊 Integrasi Google Spreadsheet & Live Database
 * **URL Spreadsheet:** [Google Spreadsheet Kopi Ijen](https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit?gid=0#gid=0)
-* **Penyimpanan Otomatis**: Setiap peserta yang menekan tombol *"Selesai Bermain"*, skor beserta rincian 8 buah kopi otomatis masuk ke Google Spreadsheet melalui Google Apps Script Web App.
-* **Struktur Data Rapi (16 Kolom)**: Nama, Entitas, Skor, Jumlah Benar, Jumlah Salah, Bonus Sapu Bersih, Durasi, Waktu Submit, dan Soal 1 s.d. 8.
+* **Penyimpanan Otomatis**: Setiap peserta yang menyelesaikan kuis, skor total beserta rincian Ronde 1 dan Ronde 2 otomatis masuk ke Google Spreadsheet melalui Google Apps Script Web App.
 
 ---
 
@@ -98,4 +118,4 @@ Buka browser di: `http://localhost:3000`
 1. Buka [vercel.com](https://vercel.com) dan login dengan akun GitHub Anda.
 2. Pilih menu **"Add New Project"** lalu pilih repositori **`zandyka/Quiz-Podcast-DSPS`**.
 3. Klik **"Deploy"** (tanpa perlu konfigurasi tambahan).
-4. Website kuis akan langsung aktif 24/7 dengan URL HTTPS cepat dari Vercel!
+Setiap commit baru yang di-push ke branch `main` akan di-build dan di-deploy otomatis oleh Vercel.

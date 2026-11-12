@@ -137,19 +137,28 @@ module.exports = async function handler(req, res) {
         let whatsapp = '';
         let score = 0;
         let correctCount = 0;
+        let r2Answer = '—';
+        let r2Score = 0;
         let duration = '';
         let timestamp = '';
 
-        // Deteksi cerdas apakah baris memiliki kolom No. WhatsApp (17 kolom atau nomor WA berdigit >= 8)
-        const isWaRow = r.length >= 17 || (r[2] && String(r[2]).length >= 8);
-
-        if (isWaRow) {
+        // Deteksi format kolom (19 kolom baru vs 17 kolom WA vs 16 kolom awal)
+        if (r.length >= 19) {
+          whatsapp = r[2] || '';
+          score = parseInt(r[3], 10) || 0;
+          correctCount = parseInt(r[4], 10) || 0;
+          r2Answer = r[7] || '—';
+          r2Score = parseInt(r[8], 10) || 0;
+          duration = r[9] || '';
+          timestamp = r[10] || '';
+        } else if (r.length >= 17 || (r[2] && String(r[2]).length >= 8)) {
           whatsapp = r[2] || '';
           score = parseInt(r[3], 10) || 0;
           correctCount = parseInt(r[4], 10) || 0;
           duration = r[7] || '';
           timestamp = r[8] || '';
         } else {
+          whatsapp = '—';
           score = parseInt(r[2], 10) || 0;
           correctCount = parseInt(r[3], 10) || 0;
           duration = r[6] || '';
@@ -164,6 +173,8 @@ module.exports = async function handler(req, res) {
             whatsapp,
             score,
             correctCount,
+            r2Answer,
+            r2Score,
             duration,
             timestamp
           });
@@ -201,11 +212,16 @@ module.exports = async function handler(req, res) {
       const name = (body.name || '').trim();
       const entity = (body.entity || '').trim();
       const whatsapp = (body.whatsapp || body.wa || body.no_wa || '').trim();
-      const score = Number(body.score) || 0;
+      const r1Score = Number(body.r1_score ?? body.score_r1 ?? 0);
+      const r2Score = Number(body.r2_score ?? body.score_r2 ?? 0);
+      const totalScore = Number(body.score ?? (r1Score + r2Score));
       const correctCount = Number(body.correct_count) || 0;
       const wrongCount = Number(body.wrong_count) || 0;
       const duration = body.duration || '0:00';
       const bonus = correctCount >= 4 ? 'Ya (+100)' : 'Tidak';
+      const r2Answer = (body.r2_answer || '').trim();
+      const r2Correct = Boolean(body.r2_correct);
+      const r2Text = r2Answer ? `${r2Answer} (${r2Correct ? 'Benar +100' : 'Salah +0'})` : '—';
       const answers = body.answers || {};
       const timestamp = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB';
 
@@ -219,14 +235,17 @@ module.exports = async function handler(req, res) {
         return a.correct ? `✅ Benar (+${a.points || 100})` : `❌ Salah (${a.points || -50})`;
       };
 
+      // Format 19 Kolom Standar Resmi PTPN Group (Ronde 1 + Ronde 2)
       const newRow = [
         name,
         entity || '—',
         whatsapp || '—',
-        score,
+        totalScore,
         `${correctCount} / 4`,
         wrongCount,
         bonus,
+        r2Text,
+        r2Score,
         duration,
         timestamp,
         getAnsText(1),
@@ -257,7 +276,10 @@ module.exports = async function handler(req, res) {
         ok: true,
         message: 'Skor berhasil disimpan ke Google Spreadsheet',
         name,
-        score,
+        score: totalScore,
+        r1_score: r1Score,
+        r2_score: r2Score,
+        r2_answer: r2Answer,
         timestamp,
         apps_script_result: appsScriptResult
       });

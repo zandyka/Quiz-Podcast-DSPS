@@ -24,6 +24,16 @@
     { id: 8, label: 'Tanah miskin unsur hara membuat biji kopi lebih manis', correct: false }
   ];
 
+  // Bank Soal Ronde 2: Soal Pilihan Ganda Nilai Budaya
+  const QUESTION_ROUND_2 = 'Apa nilai budaya yang tercantum dalam podcast jejak kopi nusantara?';
+  const OPTIONS_ROUND_2 = [
+    { key: 'A', text: 'Continuous learning', correct: false },
+    { key: 'B', text: 'Excellence', correct: true },
+    { key: 'C', text: 'Owner’s mindset', correct: false },
+    { key: 'D', text: 'Networking', correct: false }
+  ];
+  const EXPLANATION_ROUND_2 = 'Nilai budaya Excellence (Keunggulan) merupakan salah satu pilar budaya kerja utama yang ditekankan dalam podcast jejak kopi nusantara — mengedepankan komitmen mutu terbaik, standar tinggi, dan dedikasi planters dari hulu kebun hingga ke cangkir kopi.';
+
   // Bank Soal Simulasi Tutorial (Soal Revisi 5)
   const QUESTION_SIMULATION = 'Apa saja jenis kopi yang diproduksi PTPN?';
   const BEANS_SIMULATION = [
@@ -217,7 +227,7 @@
   // STATE APLIKASI
   // ==========================================
   let currentTab = 'quiz'; // 'quiz' | 'podcast'
-  let gameStatus = 'intro'; // 'intro' | 'simulation' | 'playing' | 'result'
+  let gameStatus = 'intro'; // 'intro' | 'simulation' | 'playing' | 'round1_complete' | 'round2' | 'result'
   let quizGlobalStatus = 'open'; // 'open' | 'closed' (dikontrol oleh admin)
 
   let isAdminLoggedIn = false;
@@ -228,7 +238,7 @@
   let playerName = '';
   let playerEntity = '';
   let playerWhatsApp = '';
-  let score = 0;
+  let score = 0; // Total skor akumulasi (Ronde 1 + Ronde 2)
   let correctCount = 0;
   let elapsedSeconds = 0;
   let timerInterval = null;
@@ -240,6 +250,14 @@
   let feedbackMessage = '';
   let audioMuted = false;
   let audioContext = null;
+
+  // State Ronde 2 (Pilihan Ganda Nilai Budaya)
+  let round1Score = 0;
+  let round2Score = 0;
+  let round2Answer = '';
+  let round2Correct = false;
+  let round2Selected = null;
+  let round2Done = false;
 
   // State Simulasi Tutorial
   let simScore = 0;
@@ -387,7 +405,7 @@
 
     const hero = $('#mainHero');
     if (hero) {
-      hero.style.display = (currentTab === 'quiz' && (gameStatus === 'playing' || gameStatus === 'simulation')) ? 'none' : 'block';
+      hero.style.display = (currentTab === 'quiz' && (gameStatus === 'playing' || gameStatus === 'simulation' || gameStatus === 'round1_complete' || gameStatus === 'round2')) ? 'none' : 'block';
     }
 
     if (currentTab === 'quiz') {
@@ -398,6 +416,8 @@
       if (gameStatus === 'intro') renderIntro();
       else if (gameStatus === 'simulation') renderSimulation();
       else if (gameStatus === 'playing') renderPlayfield();
+      else if (gameStatus === 'round1_complete') renderRound1Complete();
+      else if (gameStatus === 'round2') renderRound2();
       else if (gameStatus === 'result') renderResult();
     } else if (currentTab === 'podcast') {
       renderPodcastTab();
@@ -501,12 +521,11 @@
 
             <!-- Petunjuk Aturan Poin -->
             <div style="background: #f4f8f1; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 14px; margin: 6px 0;">
-              <strong style="color: #17452d; display: block; margin-bottom: 5px; font-size: 13.5px;">📖 Aturan Main Kuis:</strong>
+              <strong style="color: #17452d; display: block; margin-bottom: 5px; font-size: 13.5px;">📖 Aturan Main Kuis (2 Ronde):</strong>
               <ul style="padding-left: 18px; font-size: 13px; color: #284c36; line-height: 1.6;">
-                <li>Ada <b>8 buah kopi merah</b>. Pilih <b>4 faktor mutu</b> Kopi Ijen.</li>
-                <li>Jawaban Benar: <b>+100 poin</b> · Pilihan Salah: <b>-50 poin</b>.</li>
-                <li>Bonus Sapu Bersih 4 jawaban tepat: <b>+100 poin tambahan</b>!</li>
-                <li>Nilai akhir otomatis tercatat di Google Spreadsheet panitia.</li>
+                <li><b>Ronde 1 (Petik Buah Kopi):</b> 8 buah kopi, pilih 4 faktor mutu Kopi Ijen (Benar: <b>+100</b>, Salah: <b>-50</b>, Bonus Sapu Bersih: <b>+100</b>).</li>
+                <li><b>Ronde 2 (Pilihan Ganda):</b> Jawab 1 pertanyaan nilai budaya planters dari podcast (Benar: <b>+100 poin</b>).</li>
+                <li><b>Total Skor Maksimal:</b> <b>600 poin</b>. Hasil tersimpan otomatis di Google Spreadsheet panitia!</li>
               </ul>
             </div>
 
@@ -800,6 +819,14 @@
     feedbackMessage = '';
     beanOrder = shuffle([1, 2, 3, 4, 5, 6, 7, 8]);
 
+    // Reset State Ronde 2
+    round1Score = 0;
+    round2Score = 0;
+    round2Answer = '';
+    round2Correct = false;
+    round2Selected = null;
+    round2Done = false;
+
     gameStatus = 'playing';
     render();
 
@@ -810,11 +837,11 @@
       if (timeEl) timeEl.textContent = formatTime(elapsedSeconds);
     }, 1000);
 
-    showToast('Kuis dimulai! Ketuk buah kopi merah.');
+    showToast('Ronde 1: Petik buah kopi merah terbaik!');
   }
 
   // ==========================================
-  // ARENA PERMAINAN KUIS UTAMA (8 BUAH KOPI)
+  // ARENA PERMAINAN RONDE 1 (8 BUAH KOPI)
   // ==========================================
   function renderPlayfield() {
     const screen = $('#screen');
@@ -824,27 +851,30 @@
       <!-- Stats Bar Mobile -->
       <div class="stats" style="margin-bottom: 10px;">
         <div class="stat-item">
+          <b>🍒 RONDE 1</b>
+          <small>Mode</small>
+        </div>
+        <div class="stat-item">
           <b id="timeDisplay">${formatTime(elapsedSeconds)}</b>
           <small>Waktu Main</small>
         </div>
         <div class="stat-item">
           <b id="scoreDisplay">${score}</b>
-          <small>Skor Kamu</small>
+          <small>Skor Ronde 1</small>
         </div>
         <div class="stat-item">
           <b>${correctCount}/4</b>
           <small>Benar</small>
         </div>
-        <div class="stat-item">
-          <b>${totalThrown}/8</b>
-          <small>Dipetik</small>
-        </div>
       </div>
 
-      <!-- Banner Pertanyaan Kuis Utama -->
+      <!-- Banner Pertanyaan Ronde 1 -->
       <div class="game-question">
-        <small>🍃 SOAL KUIS · PILIH 4 JAWABAN TEPAT</small>
-        <h2>${QUESTION_MAIN}</h2>
+        <div class="round-indicator">🍒 RONDE 1 DARI 2 · MEMETIK BUAH KOPI</div>
+        <h2 style="margin-top: 4px;">${QUESTION_MAIN}</h2>
+        <small style="color: #c9e0d1; display: block; margin-top: 4px;">
+          Pilih 4 faktor mutu Kopi Ijen (+100) dan hindari faktor salah (-50)!
+        </small>
       </div>
 
       <!-- Playfield Pohon Buah Kopi -->
@@ -884,10 +914,10 @@
         💡 <b>Tips:</b> Ketuk buah kopi untuk membuka, lalu pilih <b>"Masukkan ke Keranjang"</b>.
       </p>
 
-      <!-- Tombol Selesai Bermain & Submit -->
+      <!-- Tombol Lanjut ke Ronde 2 -->
       <div style="margin-top: 12px;">
         <button id="btnFinishPlay" class="btn primary" style="width: 100%; font-size: 15px; font-weight: 900; box-shadow: 0 4px 14px rgba(245, 176, 39, 0.45);">
-          🏁 Selesai Bermain & Simpan Skor
+          ➡️ Lanjut ke Ronde 2 (Pilihan Ganda) →
         </button>
       </div>
 
@@ -954,13 +984,9 @@
       btnFinish.onclick = () => {
         const totalThrown = Object.keys(thrownBeans).length;
         if (totalThrown === 0) {
-          if (!confirm('Kamu belum memasukkan buah kopi ke keranjang. Yakin ingin mengakhiri kuis sekarang?')) return;
-        } else {
-          if (!confirm(`Selesaikan kuis dengan perolehan ${score} poin dan simpan ke Google Spreadsheet?`)) return;
+          if (!confirm('Kamu belum memasukkan buah kopi ke keranjang. Yakin ingin langsung lanjut ke Ronde 2?')) return;
         }
-        btnFinish.disabled = true;
-        btnFinish.textContent = '⏳ Menyimpan Skor ke Spreadsheet...';
-        finishQuiz();
+        completeRound1();
       };
     }
   }
@@ -1020,11 +1046,10 @@
     if (isCorrect) fireConfetti();
 
     if (correctCount === 4) {
-      if (timerInterval) clearInterval(timerInterval);
       setTimeout(() => {
         isBusy = false;
-        finishQuiz();
-      }, 1000);
+        completeRound1();
+      }, 1200);
       return;
     }
 
@@ -1038,10 +1063,200 @@
   }
 
   // ==========================================
-  // SELESAI KUIS & SUBMIT KE SPREADSHEET
+  // TRANSISI RONDE 1 KE RONDE 2
+  // ==========================================
+  function completeRound1() {
+    round1Score = score;
+    gameStatus = 'round1_complete';
+    render();
+    fireConfetti();
+    playSound('correct');
+  }
+
+  function renderRound1Complete() {
+    const screen = $('#screen');
+    screen.innerHTML = `
+      <div class="panel">
+        <div class="panel-inner" style="max-width: 500px; margin: 0 auto; text-align: center;">
+          <div class="round-transition-card">
+            <div style="font-size: 48px; margin-bottom: 6px;">🎉 🍒</div>
+            <div class="round-indicator" style="background: rgba(23, 69, 45, 0.08); color: #17452d; border-color: #cbdbc1; display: inline-block;">
+              RONDE 1 SELESAI
+            </div>
+            <h2 style="color: #17452d; margin-top: 8px;">Keren! Ronde 1 Selesai!</h2>
+            <p class="muted" style="font-size: 14px; margin: 6px 0 16px;">
+              Kamu berhasil mengumpulkan <b>${correctCount} dari 4</b> faktor mutu Kopi Ijen.
+            </p>
+
+            <div style="background: linear-gradient(145deg, #fffcf0 0%, #fff7d6 100%); border: 2px solid #f5b027; border-radius: 16px; padding: 16px; margin: 12px 0;">
+              <small style="color: #8c630f; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px;">SKOR SEMENTARA RONDE 1</small>
+              <div style="font-size: 46px; font-weight: 950; color: #17452d; margin: 2px 0;">
+                ${round1Score} <span style="font-size: 18px; font-weight: 700; color: #5a7b68;">poin</span>
+              </div>
+              ${correctCount === 4 ? '<span style="color: #15803d; font-weight: 800; font-size: 13px;">🏆 Bonus Sapu Bersih (+100) Berhasil Diraih!</span>' : ''}
+            </div>
+
+            <div style="background: #eef6ec; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 14px; text-align: left; font-size: 13.5px; color: #19462b; margin: 16px 0; line-height: 1.5;">
+              <strong style="color: #113821; display: block; margin-bottom: 4px;">🚀 Bersiap untuk Ronde 2 (Pilihan Ganda):</strong>
+              Uji pemahamanmu tentang <b>nilai budaya planters PTPN Group</b> yang tercantum dalam podcast jejak kopi nusantara. Jawaban benar bernilai <b>+100 poin</b>!
+            </div>
+
+            <button id="btnStartRound2" class="btn primary" style="width: 100%; font-size: 16px; font-weight: 900; padding: 15px; box-shadow: 0 4px 18px rgba(245, 176, 39, 0.5);">
+              Mulai Ronde 2 Sekarang →
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    $('#btnStartRound2').onclick = startRound2;
+  }
+
+  // ==========================================
+  // RONDE 2: SOAL PILIHAN GANDA (NILAI BUDAYA)
+  // Soal: "Apa nilai budaya yang tercantum dalam podcast jejak kopi nusantara?"
+  // Opsi: Continuous learning, Excellence, Owner’s mindset, Networking
+  // Kunci Jawaban: Excellence (+100 poin)
+  // ==========================================
+  function startRound2() {
+    gameStatus = 'round2';
+    round2Selected = null;
+    round2Done = false;
+    round2Answer = '';
+    round2Correct = false;
+    round2Score = 0;
+    render();
+    showToast('Ronde 2: Pilih 1 jawaban yang paling tepat!');
+  }
+
+  function renderRound2() {
+    const screen = $('#screen');
+    const currentTotal = round1Score + round2Score;
+
+    screen.innerHTML = `
+      <!-- Stats Bar Ronde 2 -->
+      <div class="stats" style="margin-bottom: 10px;">
+        <div class="stat-item">
+          <b>🎯 RONDE 2</b>
+          <small>Mode</small>
+        </div>
+        <div class="stat-item">
+          <b id="timeDisplay">${formatTime(elapsedSeconds)}</b>
+          <small>Waktu Main</small>
+        </div>
+        <div class="stat-item">
+          <b>${round1Score}</b>
+          <small>Skor Ronde 1</small>
+        </div>
+        <div class="stat-item">
+          <b style="color: #f5b027;">${round2Done ? `+${round2Score}` : '—'}</b>
+          <small>Poin Ronde 2</small>
+        </div>
+      </div>
+
+      <!-- Banner Pertanyaan Ronde 2 -->
+      <div class="game-question">
+        <div class="round-indicator">🎯 RONDE 2 DARI 2 · SOAL PILIHAN GANDA</div>
+        <h2 style="margin-top: 6px;">${QUESTION_ROUND_2}</h2>
+        <small style="color: #c9e0d1; display: block; margin-top: 4px;">
+          Pilih 1 nilai budaya yang paling tepat (+100 poin untuk jawaban benar)!
+        </small>
+      </div>
+
+      <!-- Grid 4 Kartu Opsi Pilihan Ganda -->
+      <div class="mc-options-grid">
+        ${OPTIONS_ROUND_2.map(opt => {
+          let extraClass = '';
+          if (round2Done) {
+            if (opt.text === round2Answer) {
+              extraClass = opt.correct ? 'correct' : 'wrong';
+            } else if (opt.correct) {
+              extraClass = 'correct'; // Sorot hijau jawaban benar agar edukatif
+            }
+          }
+
+          return `
+            <button class="mc-option-card ${extraClass}" 
+                    data-mc-option="${escapeHtml(opt.text)}" 
+                    ${round2Done ? 'disabled' : ''}>
+              <div class="opt-letter">${opt.key}</div>
+              <div class="opt-text">${escapeHtml(opt.text)}</div>
+            </button>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- Feedback & Penjelasan Edukatif Setelah Memilih -->
+      ${round2Done ? `
+        <div class="sim-feedback-box ${round2Correct ? 'correct' : 'wrong'}" style="margin: 14px 0; animation: popIn 0.3s ease;">
+          <strong style="font-size: 15px;">
+            ${round2Correct ? '🎉 Jawaban Kamu Tepat Sekali (+100 Poin)!' : '❌ Jawaban Kurang Tepat (+0 Poin)'}
+          </strong>
+          <p style="margin-top: 6px; font-size: 13.5px; line-height: 1.55;">
+            ${escapeHtml(EXPLANATION_ROUND_2)}
+          </p>
+        </div>
+
+        <!-- Tombol Selesai & Simpan Skor Akhir -->
+        <div style="margin-top: 14px;">
+          <button id="btnFinishAll" class="btn primary" style="width: 100%; font-size: 16px; font-weight: 900; padding: 15px; box-shadow: 0 4px 18px rgba(245, 176, 39, 0.5);">
+            🏁 Selesai & Simpan Skor Akhir (${currentTotal} Poin) →
+          </button>
+        </div>
+      ` : `
+        <p style="text-align: center; color: #cbe0d3; font-size: 12.5px; margin-top: 12px;">
+          💡 Ketuk salah satu kartu opsi di atas untuk menguji jawabanmu.
+        </p>
+      `}
+    `;
+
+    // Event listener opsi pilihan ganda
+    if (!round2Done) {
+      document.querySelectorAll('[data-mc-option]').forEach(btn => {
+        btn.onclick = () => {
+          const optText = btn.dataset.mcOption;
+          handleRound2Select(optText);
+        };
+      });
+    }
+
+    if ($('#btnFinishAll')) {
+      $('#btnFinishAll').onclick = () => {
+        const btn = $('#btnFinishAll');
+        btn.disabled = true;
+        btn.textContent = '⏳ Menyimpan Skor ke Spreadsheet...';
+        finishQuiz();
+      };
+    }
+  }
+
+  function handleRound2Select(selectedText) {
+    if (round2Done) return;
+    const opt = OPTIONS_ROUND_2.find(o => o.text === selectedText);
+    if (!opt) return;
+
+    round2Answer = opt.text;
+    round2Correct = Boolean(opt.correct);
+    round2Score = round2Correct ? 100 : 0;
+    round2Done = true;
+
+    playSound(round2Correct ? 'correct' : 'wrong');
+    if (round2Correct) {
+      fireConfetti();
+    }
+
+    renderRound2();
+  }
+
+  // ==========================================
+  // SELESAI KUIS & SUBMIT KE SPREADSHEET (RONDE 1 + RONDE 2)
   // ==========================================
   async function finishQuiz() {
     if (timerInterval) clearInterval(timerInterval);
+    
+    // Total skor akhir = Ronde 1 + Ronde 2
+    score = round1Score + round2Score;
+
     gameStatus = 'result';
     render();
     fireConfetti();
@@ -1058,6 +1273,10 @@
           entity: playerEntity,
           whatsapp: playerWhatsApp,
           score: score,
+          r1_score: round1Score,
+          r2_score: round2Score,
+          r2_answer: round2Answer,
+          r2_correct: round2Correct,
           correct_count: correctCount,
           wrong_count: wrongCount,
           duration: formatTime(elapsedSeconds),
@@ -1072,11 +1291,11 @@
 
   // ==========================================
   // LAYAR HASIL KUIS (REVISI 2: LEADERBOARD HANYA UNTUK ADMIN)
-  // Peserta biasa tidak melihat leaderboard di layar ini
+  // Menampilkan Breakdown Ronde 1 + Ronde 2 Lengkap
   // ==========================================
   function renderResult() {
     const screen = $('#screen');
-    const waText = `Halo! 🍒 Saya baru saja menyelesaikan Kata Kalcer Podcast Interactive Quiz (${playerEntity}) dengan skor ${score} poin! Coba tandingi skor saya di sini: ${window.location.origin}`;
+    const waText = `Halo! 🍒 Saya baru saja menyelesaikan Kata Kalcer Podcast Interactive Quiz (${playerEntity}) dengan total skor ${score} poin (R1: ${round1Score} poin + R2: ${round2Score} poin)! Coba tandingi skor saya di sini: ${window.location.origin}`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
 
     screen.innerHTML = `
@@ -1094,12 +1313,27 @@
 
           <!-- Kartu Nilai Akhir -->
           <div style="background: linear-gradient(145deg, #fffcf0 0%, #fff7d6 100%); border: 2.5px solid #f5b027; border-radius: 18px; padding: 20px; margin: 18px 0; box-shadow: var(--shadow-pop);">
-            <small style="color: #8c630f; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">TOTAL SKOR AKHIR KAMU</small>
+            <small style="color: #8c630f; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">TOTAL SKOR AKHIR KAMU (R1 + R2)</small>
             <div style="font-size: clamp(44px, 10vw, 58px); font-weight: 950; color: #16472b; margin: 4px 0;">
               ${score}
             </div>
-            <p style="color: #3b5f48; font-weight: 700; font-size: 14px;">
-              ${correctCount === 4 ? '🌟 Sempurna! Kamu memanen semua 4 buah kopi terbaik!' : `Kamu berhasil menemukan ${correctCount} dari 4 jawaban tepat.`}
+
+            <!-- Breakdown Skor Kedua Ronde -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 10px;">
+              <div style="background: #ffffff; border: 1.5px solid #d4dfce; border-radius: 12px; padding: 10px 8px; text-align: center;">
+                <small style="color: #557560; font-size: 11px; font-weight: 800; display: block;">RONDE 1: PETIK KOPI</small>
+                <strong style="color: #17452d; font-size: 18px; display: block; margin-top: 2px;">${round1Score} Poin</strong>
+                <small style="color: #557560; font-size: 10.5px;">${correctCount}/4 Benar</small>
+              </div>
+              <div style="background: #ffffff; border: 1.5px solid #d4dfce; border-radius: 12px; padding: 10px 8px; text-align: center;">
+                <small style="color: #557560; font-size: 11px; font-weight: 800; display: block;">RONDE 2: NILAI BUDAYA</small>
+                <strong style="color: ${round2Correct ? '#15803d' : '#8c6000'}; font-size: 18px; display: block; margin-top: 2px;">+${round2Score} Poin</strong>
+                <small style="color: #557560; font-size: 10.5px;">${escapeHtml(round2Answer || '—')}</small>
+              </div>
+            </div>
+
+            <p style="color: #3b5f48; font-weight: 700; font-size: 13.5px; margin-top: 6px;">
+              ${round2Correct && correctCount === 4 ? '🌟 Luar Biasa Sempurna! Kamu menguasai mutu kopi dan nilai budaya PTPN Group!' : 'Terima kasih atas partisipasi aktifmu dalam Kuis Kata Kalcer!'}
             </p>
             <div class="small muted" style="margin-top: 4px;">Waktu pengerjaan: <b>${formatTime(elapsedSeconds)}</b></div>
           </div>
@@ -1334,9 +1568,10 @@
               <th>Nama Peserta</th>
               <th>Entitas PTPN</th>
               <th>No. WhatsApp</th>
-              <th>Benar</th>
+              <th>R1 (Petik)</th>
+              <th>R2 (Budaya)</th>
               <th>Waktu</th>
-              <th style="text-align: right;">Skor</th>
+              <th style="text-align: right;">Total Skor</th>
             </tr>
           </thead>
           <tbody>
@@ -1346,7 +1581,8 @@
                 <td><b>${escapeHtml(p.name)}</b></td>
                 <td><small>${escapeHtml(p.entity || '—')}</small></td>
                 <td><small style="font-family: monospace; color: #166534; font-weight: 700;">${escapeHtml(p.whatsapp || '—')}</small></td>
-                <td>${p.correctCount}/4</td>
+                <td><small>${p.correctCount}/4</small></td>
+                <td><small style="font-weight: 700; color: ${p.r2Score > 0 ? '#15803d' : '#854d0e'};">${escapeHtml(p.r2Answer || '—')}</small></td>
                 <td><small>${escapeHtml(p.duration || '—')}</small></td>
                 <td style="text-align: right; font-size: 14.5px;"><b>${p.score}</b></td>
               </tr>
