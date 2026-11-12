@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#091e15">
-  <meta name="description" content="Quiz Podcast DSPS - Kuis Kopi Ijen Interaktif PTPN Group. Kumpulkan buah kopi terbaik dan raih posisi teratas di Papan Peringkat Google Spreadsheet!">
-  <title>Quiz Podcast DSPS | Rahasia Kopi Ijen</title>
+  <meta name="description" content="Quiz Podcast DSPS - Kuis Kopi Ijen Interaktif PTPN Group. Ikuti simulasi interaktif, saksikan Podcast Kata Kalcer, dan raih skor tertinggi!">
+  <title>Quiz Podcast DSPS | Rahasia Kopi Ijen - PTPN Group</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,85 +25,131 @@
 
       <!-- Kontrol Atas -->
       <div class="top-controls">
-        <button id="btnAdminModal" class="btn-icon btn-admin" title="Panel Admin Kuis">🔒 Admin</button>
-        <button id="btnAudioToggle" class="btn-icon" title="Nyalakan / Matikan Efek Suara" aria-label="Toggle Audio">🔊</button>
+        <!-- Tombol Musik Jingle PTPN -->
+        <button id="btnMusicToggle" class="btn-icon btn-music" title="Putar Musik Jingle PTPN" aria-label="Toggle Musik Jingle PTPN">
+          <span class="music-note">🎵</span>
+          <span class="music-label">Jingle PTPN</span>
+          <span class="eq-bars">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </span>
+        </button>
+
+        <!-- Tombol Admin Khusus (Password: dsps) -->
+        <button id="btnAdminModal" class="btn-icon btn-admin" title="Panel Admin (Password: dsps)">🔒 Admin</button>
+        <button id="btnAudioToggle" class="btn-icon" title="Nyalakan / Matikan Efek Suara" aria-label="Toggle Audio SFX">🔊</button>
         <button id="btnFullscreenToggle" class="btn-icon" title="Mode Layar Penuh" aria-label="Toggle Fullscreen">⛶</button>
       </div>
     </header>
 
-    <!-- Navigasi Tab Menu -->
+    <!-- Navigasi Tab Menu (Edukasi & Peringkat Publik Dihilangkan) -->
     <nav class="nav-tabs">
-      <button class="nav-tab active" data-tab="play">🍒 Main Kuis</button>
-      <button class="nav-tab" data-tab="leaderboard">🏆 Peringkat</button>
-      <button class="nav-tab" data-tab="education">📖 Edukasi</button>
+      <button class="nav-tab active" data-tab="quiz">🍒 Main Kuis & Simulasi</button>
+      <button class="nav-tab" data-tab="podcast">🎬 Podcast Kata Kalcer</button>
     </nav>
 
     <!-- Hero Title -->
     <section class="hero" id="mainHero">
       <div class="eyebrow">🎙️ Podcast DSPS Interactive Quiz</div>
       <h1>Rahasia Keistimewaan <span>Kopi Ijen</span></h1>
-      <p>Kuis interaktif memetik buah kopi merah segar. Buka buahnya, pilih 4 jawaban tepat, dan buktikan pengetahuanmu di papan peringkat PTPN Group!</p>
+      <p>Kuis & simulasi interaktif memanen buah kopi terbaik nusantara bersama <b>PTPN Group</b>. Tonton podcast, ikuti simulasi, dan buktikan ketajaman wawasanmu!</p>
     </section>
 
     <!-- Main Container Dinamis -->
     <main id="screen">
-      <!-- Diisi oleh app.js -->
+      <!-- Diisi secara dinamis oleh app.js -->
     </main>
 
     <!-- Footer Ramah Mobile -->
     <footer style="text-align: center; font-size: 12px; color: #a1c7af; margin-top: 32px; line-height: 1.6;">
-      Quiz Podcast DSPS · Terhubung Langsung ke Google Spreadsheet · Edisi Khusus PTPN Group
+      <div>Quiz Podcast DSPS · Terhubung Langsung ke Google Spreadsheet · Edisi Khusus PTPN Group</div>
+      <div style="margin-top: 6px;">
+        <button id="btnFooterAdmin" style="background: none; border: none; color: #f5b027; font-size: 11.5px; cursor: pointer; text-decoration: underline;">
+          🔒 Masuk Panel Admin Panitia
+        </button>
+      </div>
     </footer>
   </div>
 
   <!-- Global Toast Notification -->
   <div class="toast-msg" id="toast" role="status"></div>
 
-  <!-- Modal Admin (Password: dsps) -->
+  <!-- Modal Admin Lengkap (Password: dsps, Khusus Melihat Peringkat & Kontrol Kuis) -->
   <div class="modal-overlay" id="adminModal">
-    <div class="modal-card">
+    <div class="modal-card" id="adminModalCard">
+      <!-- 1. Form Login Admin -->
       <div id="adminLoginSection">
-        <div style="font-size: 36px; text-align: center; margin-bottom: 6px;">🔒</div>
+        <div style="font-size: 38px; text-align: center; margin-bottom: 6px;">🔒</div>
         <h3 style="text-align: center; margin-bottom: 4px; color: #164229;">Masuk Panel Admin</h3>
         <p class="muted small" style="text-align: center; margin-bottom: 16px;">
-          Masukkan kata sandi panitia untuk mengelola status buka/tutup kuis.
+          Papan peringkat dan kontrol kuis hanya dapat diakses oleh Panitia/Admin. Masukkan kata sandi admin (<code>dsps</code>).
         </p>
         <form id="adminLoginForm" class="stack">
           <div class="field-group">
             <label class="field-label">Kata Sandi Admin</label>
             <input type="password" id="inputAdminPass" class="field" required placeholder="Masukkan kata sandi..." autocomplete="current-password">
           </div>
-          <button type="submit" class="btn primary" style="width: 100%;">Masuk Admin →</button>
+          <button type="submit" class="btn primary" style="width: 100%;">Masuk Panel Admin →</button>
           <button type="button" class="btn ghost sm" id="btnCloseAdminModal">Batal</button>
         </form>
       </div>
 
+      <!-- 2. Dashboard Admin (Papan Peringkat & Kontrol Kuis) -->
       <div id="adminPanelSection" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <h3 style="color: #174229;">⚙️ Panel Admin Kuis</h3>
-          <span id="badgeAdminStatus" class="eyebrow">🟢 KUIS DIBUKA</span>
-        </div>
-
-        <p class="muted small" style="margin-bottom: 16px;">
-          Setelah kuis dibuka, peserta dapat mengakses kuis kapan saja tanpa batas durasi. Admin dapat menutup kuis kapan saja setelah acara podcast selesai.
-        </p>
-
-        <!-- Toggle Buka / Tutup Kuis -->
-        <div style="background: #eef6ec; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 16px;">
-          <small style="color: #4b6b55; font-weight: 800; display: block; margin-bottom: 6px;">STATUS KUIS SAAT INI:</small>
-          <div id="textAdminStatus" style="font-size: 18px; font-weight: 900; color: #124d31; margin-bottom: 12px;">
-            🟢 KUIS DIBUKA (Peserta Bisa Bermain)
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #e2ebd9; padding-bottom: 10px;">
+          <div>
+            <span class="eyebrow" style="font-size: 10.5px; padding: 2px 8px;">ADMINISTRATOR DSPS</span>
+            <h3 style="color: #174229; margin-top: 2px;">⚙️ Panel Admin Kuis</h3>
           </div>
-          <button id="btnToggleQuizStatus" class="btn danger" style="width: 100%;">
-            ■ Tutup Kuis Sekarang
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button id="btnCloseAdminPanel" class="btn ghost sm" title="Tutup Panel">✕</button>
+          </div>
         </div>
 
-        <div class="actions" style="margin-top: 14px;">
-          <a href="https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit?gid=0" target="_blank" class="btn green sm" style="flex: 1;">
-            📊 Buka Google Spreadsheet
-          </a>
-          <button id="btnLogoutAdmin" class="btn ghost sm">Keluar</button>
+        <!-- Kontrol Buka / Tutup Kuis -->
+        <div style="background: #eef6ec; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 14px; text-align: center; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <small style="color: #4b6b55; font-weight: 800;">STATUS KUIS SAAT INI:</small>
+            <span id="badgeAdminStatus" class="eyebrow" style="font-size: 11px;">🟢 KUIS DIBUKA</span>
+          </div>
+          <div id="textAdminStatus" style="font-size: 15px; font-weight: 900; color: #124d31; margin-bottom: 10px;">
+            🟢 KUIS DIBUKA (Peserta Bebas Bermain)
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnToggleQuizStatus" class="btn danger sm" style="flex: 1;">
+              ■ Tutup Kuis Sekarang
+            </button>
+            <a href="https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit?gid=0" target="_blank" rel="noopener" class="btn green sm" style="flex: 1;">
+              📊 Buka Spreadsheet
+            </a>
+          </div>
+        </div>
+
+        <!-- Section Papan Peringkat Khusus Admin -->
+        <div class="admin-leaderboard-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h4 style="color: #153c26; margin: 0; font-size: 16px;">🏆 Papan Peringkat Peserta</h4>
+              <small class="muted">Hanya dapat dilihat oleh Admin Panitia</small>
+            </div>
+            <button id="btnAdminRefreshScores" class="btn green sm">↻ Segarkan Data</button>
+          </div>
+
+          <!-- Input Cari Peserta -->
+          <div style="margin-bottom: 10px;">
+            <input type="text" id="inputSearchAdmin" class="field" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 Cari nama peserta atau entitas PTPN...">
+          </div>
+
+          <!-- Container Data Leaderboard -->
+          <div id="adminLeaderboardContainer">
+            <p class="muted small" style="text-align: center; padding: 20px;">Memuat data peringkat peserta dari Google Spreadsheet...</p>
+          </div>
+        </div>
+
+        <!-- Tombol Keluar Admin -->
+        <div style="margin-top: 16px; border-top: 1.5px solid #e2ebd9; padding-top: 12px; text-align: right;">
+          <button id="btnLogoutAdmin" class="btn ghost sm">🚪 Keluar Admin</button>
         </div>
       </div>
     </div>

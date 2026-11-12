@@ -103,8 +103,17 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 4. Ambil Papan Peringkat dari Google Spreadsheet
+    // 4. Ambil Papan Peringkat dari Google Spreadsheet (KHUSUS ADMIN)
     if (action === 'get_leaderboard') {
+      const pass = (query.password || body.password || '').trim();
+      if (pass !== ADMIN_PASSWORD) {
+        return res.status(403).json({
+          ok: false,
+          error: 'Akses terbatas! Papan peringkat hanya dapat dilihat oleh Admin dengan password panitia.',
+          requires_admin: true
+        });
+      }
+
       const response = await fetch(CSV_EXPORT_URL, { redirect: 'follow' });
       if (!response.ok) {
         throw new Error('Gagal membaca data dari Google Spreadsheet');
