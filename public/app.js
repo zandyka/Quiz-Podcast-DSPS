@@ -628,6 +628,9 @@
     render();
     fireConfetti();
 
+    // Hitung jumlah salah
+    const wrongCount = Object.values(thrownBeans).filter(t => !t.correct).length;
+
     // Simpan otomatis ke Google Spreadsheet via API
     try {
       await fetch(`${API_BASE}/scores`, {
@@ -638,6 +641,9 @@
           name: playerName,
           entity: playerEntity,
           score: score,
+          correct_count: correctCount,
+          wrong_count: wrongCount,
+          duration: formatTime(elapsedSeconds),
           answers: thrownBeans
         })
       });

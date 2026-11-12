@@ -118,15 +118,10 @@ module.exports = async function handler(req, res) {
         const r = rows[i];
         const name = r[0] || '';
         const entity = r[1] || '';
-        const score = parseInt(r[10], 10) || 0;
-        const timestamp = r[11] || '';
-
-        let correctCount = 0;
-        for (let col = 2; col <= 9; col++) {
-          if (r[col] && r[col].toLowerCase().includes('benar')) {
-            correctCount++;
-          }
-        }
+        const score = parseInt(r[2], 10) || 0;
+        const correctCount = parseInt(r[3], 10) || 0;
+        const duration = r[6] || '';
+        const timestamp = r[7] || '';
 
         if (name && name !== '[KUNCI RESMI]') {
           leaderboard.push({
@@ -135,6 +130,7 @@ module.exports = async function handler(req, res) {
             entity,
             score,
             correctCount,
+            duration,
             timestamp
           });
         }
@@ -171,6 +167,10 @@ module.exports = async function handler(req, res) {
       const name = (body.name || '').trim();
       const entity = (body.entity || '').trim();
       const score = Number(body.score) || 0;
+      const correctCount = Number(body.correct_count) || 0;
+      const wrongCount = Number(body.wrong_count) || 0;
+      const duration = body.duration || '0:00';
+      const bonus = correctCount >= 4 ? 'Ya (+100)' : 'Tidak';
       const answers = body.answers || {};
       const timestamp = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB';
 
@@ -180,13 +180,19 @@ module.exports = async function handler(req, res) {
 
       const getAnsText = i => {
         const a = answers[i];
-        if (!a) return '-';
-        return a.correct ? `Benar (+${a.points || 100})` : `Salah (${a.points || -50})`;
+        if (!a) return '⚪ Tidak Dipilih';
+        return a.correct ? `✅ Benar (+${a.points || 100})` : `❌ Salah (${a.points || -50})`;
       };
 
       const newRow = [
         name,
         entity || '—',
+        score,
+        `${correctCount} / 4`,
+        wrongCount,
+        bonus,
+        duration,
+        timestamp,
         getAnsText(1),
         getAnsText(2),
         getAnsText(3),
@@ -194,9 +200,7 @@ module.exports = async function handler(req, res) {
         getAnsText(5),
         getAnsText(6),
         getAnsText(7),
-        getAnsText(8),
-        score,
-        timestamp
+        getAnsText(8)
       ];
 
       // Kirim ke Google Apps Script Web App
