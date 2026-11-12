@@ -96,12 +96,14 @@
 
   // ==========================================
   // JINGLE PTPN AUDIO PLAYER (One PTPN One Culture)
-  // Memutar audio resmi jingle dari: audio/jingle-ptpn.mp3
+  // Default: MENYALA SECARA OTOMATIS
   // ==========================================
   class PTPNJinglePlayer {
     constructor() {
       this.audio = null;
       this.isPlaying = false;
+      this.userPaused = false;
+      this.interactionAttached = false;
     }
 
     getAudioElement() {
@@ -129,17 +131,42 @@
     }
 
     async play() {
+      if (this.userPaused) return;
       const a = this.getAudioElement();
       try {
         await a.play();
         this.isPlaying = true;
         this.updateUI(true);
       } catch (err) {
-        console.warn('Autoplay belum diizinkan browser sebelum interaksi pengguna:', err);
+        // Jika diblokir oleh kebijakan browser sebelum sentuhan pertama, pasang listener interaksi
+        this.attachFirstInteractionListener();
       }
     }
 
+    attachFirstInteractionListener() {
+      if (this.interactionAttached) return;
+      this.interactionAttached = true;
+
+      const onFirstInteraction = () => {
+        if (!this.userPaused) {
+          const a = this.getAudioElement();
+          a.play().then(() => {
+            this.isPlaying = true;
+            this.updateUI(true);
+          }).catch(() => {});
+        }
+        ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(evt => {
+          window.removeEventListener(evt, onFirstInteraction, true);
+        });
+      };
+
+      ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, onFirstInteraction, { capture: true, once: true });
+      });
+    }
+
     pause() {
+      this.userPaused = true;
       const a = this.getAudioElement();
       a.pause();
       this.isPlaying = false;
@@ -151,6 +178,7 @@
       if (!a.paused && this.isPlaying) {
         this.pause();
       } else {
+        this.userPaused = false;
         this.play();
       }
       return this.isPlaying;
@@ -1462,6 +1490,9 @@
     setupControls();
     await fetchQuizStatus();
     render();
+
+    // Default: Putar musik Jingle PTPN secara otomatis
+    jinglePlayer.play();
   }
 
   init();
