@@ -83,6 +83,27 @@ const server = http.createServer((req, res) => {
       const ext = path.extname(filePath);
       const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
+      // Dukungan Range Header untuk Streaming Audio (.mp3, .wav, .ogg)
+      const range = req.headers.range;
+      if (range && (ext === '.mp3' || ext === '.wav' || ext === '.ogg')) {
+        const total = stats.size;
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
+        const chunksize = (end - start) + 1;
+
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${total}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunksize,
+          'Content-Type': contentType
+        });
+
+        const stream = fs.createReadStream(filePath, { start, end });
+        stream.pipe(res);
+        return;
+      }
+
       fs.readFile(filePath, (err, content) => {
         if (err) {
           res.writeHead(500);

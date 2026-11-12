@@ -95,196 +95,60 @@
   }[c]));
 
   // ==========================================
-  // JINGLE PTPN PROCEDURAL SYNTHESIZER
-  // Mars Planters Nusantara / Jingle Semangat Perkebunan PTPN
+  // JINGLE PTPN AUDIO PLAYER (One PTPN One Culture)
+  // Memutar audio resmi jingle dari: audio/jingle-ptpn.mp3
   // ==========================================
   class PTPNJinglePlayer {
     constructor() {
-      this.ctx = null;
+      this.audio = null;
       this.isPlaying = false;
-      this.timer = null;
-      this.masterGain = null;
     }
 
-    init() {
-      if (!this.ctx) {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtx) {
-          this.ctx = new AudioCtx();
-          this.masterGain = this.ctx.createGain();
-          this.masterGain.gain.setValueAtTime(0.18, this.ctx.currentTime);
-          this.masterGain.connect(this.ctx.destination);
-        }
+    getAudioElement() {
+      if (!this.audio) {
+        this.audio = $('#bgmAudio') || new Audio('audio/jingle-ptpn.mp3');
+        this.audio.loop = true;
+        this.audio.volume = 0.65;
+
+        this.audio.addEventListener('play', () => {
+          this.isPlaying = true;
+          this.updateUI(true);
+        });
+
+        this.audio.addEventListener('pause', () => {
+          this.isPlaying = false;
+          this.updateUI(false);
+        });
+
+        this.audio.addEventListener('ended', () => {
+          this.isPlaying = false;
+          this.updateUI(false);
+        });
       }
-      if (this.ctx && this.ctx.state === 'suspended') {
-        this.ctx.resume();
-      }
+      return this.audio;
     }
 
-    play() {
-      this.init();
-      if (!this.ctx || this.isPlaying) return;
-      this.isPlaying = true;
-      this.updateUI(true);
-
-      // Rangkaian Nada Mars Semangat Planters Nusantara (C Mayor, 118 BPM)
-      const melody = [
-        // Frasa 1: Semangat pembuka
-        { note: 261.63, dur: 0.22 }, // C4
-        { note: 329.63, dur: 0.22 }, // E4
-        { note: 392.00, dur: 0.22 }, // G4
-        { note: 523.25, dur: 0.44 }, // C5
-        { note: 392.00, dur: 0.22 }, // G4
-        { note: 329.63, dur: 0.22 }, // E4
-        { note: 392.00, dur: 0.22 }, // G4
-        { note: 440.00, dur: 0.32 }, // A4
-        { note: 392.00, dur: 0.36 }, // G4
-        // Frasa 2: Dedikasi & Integritas
-        { note: 349.23, dur: 0.22 }, // F4
-        { note: 440.00, dur: 0.22 }, // A4
-        { note: 523.25, dur: 0.22 }, // C5
-        { note: 587.33, dur: 0.32 }, // D5
-        { note: 523.25, dur: 0.36 }, // C5
-        { note: 493.88, dur: 0.22 }, // B4
-        { note: 392.00, dur: 0.22 }, // G4
-        { note: 493.88, dur: 0.22 }, // B4
-        { note: 523.25, dur: 0.65 }, // C5 (pemberhentian megah)
-        // Frasa 3: Transformasi & Kebanggaan Nusantara
-        { note: 659.25, dur: 0.24 }, // E5
-        { note: 587.33, dur: 0.24 }, // D5
-        { note: 523.25, dur: 0.28 }, // C5
-        { note: 392.00, dur: 0.38 }, // G4
-        { note: 440.00, dur: 0.22 }, // A4
-        { note: 523.25, dur: 0.22 }, // C5
-        { note: 587.33, dur: 0.32 }, // D5
-        { note: 523.25, dur: 0.45 }, // C5
-        // Frasa 4: Fanfare Ceria
-        { note: 587.33, dur: 0.22 }, // D5
-        { note: 659.25, dur: 0.22 }, // E5
-        { note: 698.46, dur: 0.22 }, // F5
-        { note: 659.25, dur: 0.22 }, // E5
-        { note: 587.33, dur: 0.32 }, // D5
-        { note: 523.25, dur: 0.22 }, // C5
-        { note: 659.25, dur: 0.22 }, // E5
-        { note: 783.99, dur: 0.36 }, // G5
-        { note: 523.25, dur: 0.85 }  // C5 (tuntas penuh sukacita)
-      ];
-
-      let noteIdx = 0;
-      const scheduleNext = () => {
-        if (!this.isPlaying || !this.ctx) return;
-        const item = melody[noteIdx];
-        this.playBrass(item.note, item.dur);
-
-        // Ritme Drum & Bass Pengiring Mars
-        if (noteIdx % 2 === 0) {
-          this.playBass(item.note / 2, item.dur * 0.85);
-          this.playDrum('kick');
-        } else {
-          this.playDrum('snare');
-        }
-
-        noteIdx = (noteIdx + 1) % melody.length;
-        const intervalMs = (item.dur + 0.11) * 1000;
-        this.timer = setTimeout(scheduleNext, intervalMs);
-      };
-
-      scheduleNext();
-    }
-
-    playBrass(freq, dur) {
-      if (!this.ctx || !this.masterGain) return;
-      const now = this.ctx.currentTime;
-      const osc1 = this.ctx.createOscillator();
-      const osc2 = this.ctx.createOscillator();
-      const filter = this.ctx.createBiquadFilter();
-      const gain = this.ctx.createGain();
-
-      osc1.type = 'sawtooth';
-      osc1.frequency.setValueAtTime(freq, now);
-
-      osc2.type = 'square';
-      osc2.frequency.setValueAtTime(freq * 1.002, now); // chorus hangat
-
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1600, now);
-      filter.frequency.exponentialRampToValueAtTime(750, now + dur);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.linearRampToValueAtTime(0.15, now + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
-      osc1.connect(filter);
-      osc2.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.masterGain);
-
-      osc1.start(now);
-      osc2.start(now);
-      osc1.stop(now + dur + 0.05);
-      osc2.stop(now + dur + 0.05);
-    }
-
-    playBass(freq, dur) {
-      if (!this.ctx || !this.masterGain) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, now);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.linearRampToValueAtTime(0.11, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
-      osc.connect(gain);
-      gain.connect(this.masterGain);
-
-      osc.start(now);
-      osc.stop(now + dur + 0.05);
-    }
-
-    playDrum(type) {
-      if (!this.ctx || !this.masterGain) return;
-      const now = this.ctx.currentTime;
-      if (type === 'kick') {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(110, now);
-        osc.frequency.exponentialRampToValueAtTime(30, now + 0.12);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-        osc.start(now);
-        osc.stop(now + 0.14);
-      } else {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(280, now);
-        gain.gain.setValueAtTime(0.05, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-        osc.start(now);
-        osc.stop(now + 0.09);
+    async play() {
+      const a = this.getAudioElement();
+      try {
+        await a.play();
+        this.isPlaying = true;
+        this.updateUI(true);
+      } catch (err) {
+        console.warn('Autoplay belum diizinkan browser sebelum interaksi pengguna:', err);
       }
     }
 
     pause() {
+      const a = this.getAudioElement();
+      a.pause();
       this.isPlaying = false;
-      if (this.timer) {
-        clearTimeout(this.timer);
-        this.timer = null;
-      }
       this.updateUI(false);
     }
 
     toggle() {
-      if (this.isPlaying) {
+      const a = this.getAudioElement();
+      if (!a.paused && this.isPlaying) {
         this.pause();
       } else {
         this.play();
@@ -296,7 +160,7 @@
       const btn = $('#btnMusicToggle');
       if (!btn) return;
       btn.classList.toggle('playing', playing);
-      btn.setAttribute('title', playing ? 'Jeda Musik Jingle PTPN' : 'Putar Musik Jingle PTPN');
+      btn.setAttribute('title', playing ? 'Jeda Jingle One PTPN One Culture' : 'Putar Jingle One PTPN One Culture');
     }
   }
 
@@ -1560,7 +1424,7 @@
     if (musicBtn) {
       musicBtn.onclick = () => {
         const isPlaying = jinglePlayer.toggle();
-        showToast(isPlaying ? '🎵 Jingle PTPN diputar' : '⏸ Jingle PTPN dijeda');
+        showToast(isPlaying ? '🎵 Memutar Jingle One PTPN One Culture' : '⏸ Jingle PTPN dijeda');
       };
     }
 
