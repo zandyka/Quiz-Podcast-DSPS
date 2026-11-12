@@ -460,6 +460,13 @@
         💡 <b>Tips:</b> Ketuk buah untuk membaca opsinya, lalu pilih <b>"Masukkan ke Keranjang"</b>.
       </p>
 
+      <!-- Tombol Selesai Bermain & Submit -->
+      <div style="margin-top: 12px;">
+        <button id="btnFinishPlay" class="btn primary" style="width: 100%; font-size: 15px; font-weight: 900; box-shadow: 0 4px 14px rgba(245, 176, 39, 0.45);">
+          🏁 Selesai Bermain & Kirim Jawaban
+        </button>
+      </div>
+
       <!-- Sticky Action Sheet Mobile (Jangkauan Jempol) -->
       ${selectedBean ? `
         <div class="selected-bar" id="selectedSheet">
@@ -518,6 +525,25 @@
 
     if ($('#btnThrowBean')) $('#btnThrowBean').onclick = handleThrowBean;
     if ($('#btnCancelBean')) $('#btnCancelBean').onclick = () => { selectedBean = null; renderPlayfield(); };
+
+    const btnFinish = $('#btnFinishPlay');
+    if (btnFinish) {
+      btnFinish.onclick = () => {
+        const totalThrown = Object.keys(thrownBeans).length;
+        if (totalThrown === 0) {
+          if (!confirm('Anda belum memasukkan buah kopi ke keranjang. Yakin ingin mengakhiri kuis sekarang?')) {
+            return;
+          }
+        } else {
+          if (!confirm(`Selesaikan kuis dengan skor ${score} poin dan simpan ke Google Spreadsheet?`)) {
+            return;
+          }
+        }
+        btnFinish.disabled = true;
+        btnFinish.textContent = '⏳ Menyimpan Skor ke Spreadsheet...';
+        finishQuiz();
+      };
+    }
   }
 
   function handleBeanClick(bId) {
