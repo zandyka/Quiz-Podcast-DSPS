@@ -227,6 +227,7 @@
   // Data Peserta & Kuis Utama
   let playerName = '';
   let playerEntity = '';
+  let playerWhatsApp = '';
   let score = 0;
   let correctCount = 0;
   let elapsedSeconds = 0;
@@ -439,16 +440,17 @@
     const screen = $('#screen');
     const storedName = localStorage.getItem('kopi_player_name') || '';
     const storedEntity = localStorage.getItem('kopi_player_entity') || '';
+    const storedWhatsApp = localStorage.getItem('kopi_player_wa') || '';
 
     screen.innerHTML = `
       <div class="panel">
         <div class="panel-inner" style="max-width: 520px; margin: 0 auto;">
-          <h2>🍒 Kuis Kopi Ijen PTPN Group</h2>
-          <p class="muted small">Lengkapi data Anda, ikuti simulasi memetik kopi, dan saksikan podcast resminya!</p>
+          <h2>Kata Kalcer Podcast Interactive Quiz</h2>
+          <p class="muted small">Lengkapi data kamu, ikuti simulasi memetik kopi, dan saksikan podcast resminya!</p>
 
-          <!-- Sematan Video YouTube Podcast Kata Kalcer (Revisi 4) -->
+          <!-- Sematan Video YouTube Podcast Kata Kalcer -->
           <div class="podcast-embed-card">
-            <div class="podcast-highlight-badge">🎙️ PODCAST RESMI LIFE AT PTPN</div>
+            <div class="podcast-highlight-badge">🎙️ Kuis podcast jejak kopi nusantara</div>
             <p class="podcast-title-tag">
               (Tonton Podcast Kata Kalcer episode Rahasia di Balik Cita Rasa Kopi Ijen)
             </p>
@@ -471,11 +473,11 @@
             </a>
           </div>
 
-          <!-- Form Identitas Peserta (Dropdown Entitas PTPN) -->
+          <!-- Form Identitas Peserta -->
           <form id="startQuizForm" class="stack" style="margin-top: 14px;">
             <div class="field-group">
               <label class="field-label">Nama Lengkap Peserta</label>
-              <input id="inputName" class="field" required placeholder="Ketik nama lengkap Anda..." value="${escapeHtml(storedName)}" maxlength="60" autocomplete="name">
+              <input id="inputName" class="field" required placeholder="Ketik nama lengkap kamu..." value="${escapeHtml(storedName)}" maxlength="60" autocomplete="name">
             </div>
 
             <div class="field-group">
@@ -486,6 +488,15 @@
                   <option value="${escapeHtml(ent)}" ${storedEntity === ent ? 'selected' : ''}>${escapeHtml(ent)}</option>
                 `).join('')}
               </select>
+            </div>
+
+            <!-- Kolom Nomor WhatsApp di Bawah Entitas -->
+            <div class="field-group">
+              <label class="field-label">Nomor WhatsApp Aktif</label>
+              <input type="tel" id="inputWhatsApp" class="field" required placeholder="Contoh: 081234567890" value="${escapeHtml(storedWhatsApp)}" maxlength="20" autocomplete="tel">
+              <small class="muted" style="font-size: 11px; margin-top: 3px; display: block;">
+                Nomor WhatsApp kamu diperlukan untuk konfirmasi dan pengumuman pemenang kuis.
+              </small>
             </div>
 
             <!-- Petunjuk Aturan Poin -->
@@ -517,6 +528,7 @@
     $('#btnGoSimulation').onclick = () => {
       const n = $('#inputName').value.trim();
       const ent = $('#selectEntity').value;
+      const wa = $('#inputWhatsApp').value.trim();
       if (n) {
         playerName = n;
         localStorage.setItem('kopi_player_name', n);
@@ -524,6 +536,10 @@
       if (ent) {
         playerEntity = ent;
         localStorage.setItem('kopi_player_entity', ent);
+      }
+      if (wa) {
+        playerWhatsApp = wa;
+        localStorage.setItem('kopi_player_wa', wa);
       }
       // Mulai jingle PTPN
       jinglePlayer.play();
@@ -535,14 +551,18 @@
       e.preventDefault();
       const n = $('#inputName').value.trim();
       const ent = $('#selectEntity').value;
+      const wa = $('#inputWhatsApp').value.trim();
 
       if (n.length < 2) return showToast('Nama lengkap minimal 2 karakter');
       if (!ent) return showToast('Pilih salah satu entitas PTPN Group');
+      if (!wa || wa.length < 8) return showToast('Masukkan nomor WhatsApp aktif kamu yang valid');
 
       playerName = n;
       playerEntity = ent;
+      playerWhatsApp = wa;
       localStorage.setItem('kopi_player_name', n);
       localStorage.setItem('kopi_player_entity', ent);
+      localStorage.setItem('kopi_player_wa', wa);
 
       // Mulai jingle PTPN
       jinglePlayer.play();
@@ -663,9 +683,9 @@
         ${simCorrectCount >= 3 ? `
           <div style="background: linear-gradient(145deg, #fffcf0 0%, #fff7d6 100%); border: 2px solid #f5b027; border-radius: 14px; padding: 14px; text-align: center; color: #173f27;">
             <div style="font-size: 26px;">🎉</div>
-            <strong style="display: block; font-size: 15px;">Simulasi Sukses! Anda Siap Masuk Kuis Utama!</strong>
+            <strong style="display: block; font-size: 15px;">Simulasi Sukses! Kamu Siap Masuk Kuis Utama!</strong>
             <p style="font-size: 12.5px; color: #476852; margin: 4px 0 10px;">
-              Anda telah menguasai cara memetik buah kopi dan penghitungan skor (+100 / -50).
+              Kamu telah menguasai cara memetik buah kopi dan penghitungan skor (+100 / -50).
             </p>
             <button id="btnFinishSimToGoMain" class="btn primary" style="width: 100%; font-size: 15px; font-weight: 900;">
               🚀 Masuk ke Kuis Utama Kopi Ijen →
@@ -809,7 +829,7 @@
         </div>
         <div class="stat-item">
           <b id="scoreDisplay">${score}</b>
-          <small>Skor Anda</small>
+          <small>Skor Kamu</small>
         </div>
         <div class="stat-item">
           <b>${correctCount}/4</b>
@@ -823,7 +843,7 @@
 
       <!-- Banner Pertanyaan Kuis Utama -->
       <div class="game-question">
-        <small>🍃 SOAL KUIS PODCAST DSPS · PILIH 4 JAWABAN TEPAT</small>
+        <small>🍃 SOAL KUIS · PILIH 4 JAWABAN TEPAT</small>
         <h2>${QUESTION_MAIN}</h2>
       </div>
 
@@ -934,7 +954,7 @@
       btnFinish.onclick = () => {
         const totalThrown = Object.keys(thrownBeans).length;
         if (totalThrown === 0) {
-          if (!confirm('Anda belum memasukkan buah kopi ke keranjang. Yakin ingin mengakhiri kuis sekarang?')) return;
+          if (!confirm('Kamu belum memasukkan buah kopi ke keranjang. Yakin ingin mengakhiri kuis sekarang?')) return;
         } else {
           if (!confirm(`Selesaikan kuis dengan perolehan ${score} poin dan simpan ke Google Spreadsheet?`)) return;
         }
@@ -1036,6 +1056,7 @@
           action: 'submit_score',
           name: playerName,
           entity: playerEntity,
+          whatsapp: playerWhatsApp,
           score: score,
           correct_count: correctCount,
           wrong_count: wrongCount,
@@ -1043,7 +1064,7 @@
           answers: thrownBeans
         })
       });
-      showToast('✅ Nilai Anda otomatis tersimpan di Google Spreadsheet!');
+      showToast('✅ Nilai kamu otomatis tersimpan di Google Spreadsheet!');
     } catch (err) {
       console.warn('Gagal sync ke spreadsheet:', err);
     }
@@ -1055,13 +1076,17 @@
   // ==========================================
   function renderResult() {
     const screen = $('#screen');
-    const waText = `Halo! 🍒 Saya baru saja menyelesaikan Quiz Podcast DSPS Kopi Ijen (${playerEntity}) dengan skor ${score} poin! Coba ikuti kuisnya di sini: ${window.location.origin}`;
+    const waText = `Halo! 🍒 Saya baru saja menyelesaikan Kata Kalcer Podcast Interactive Quiz (${playerEntity}) dengan skor ${score} poin! Coba tandingi skor saya di sini: ${window.location.origin}`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
 
     screen.innerHTML = `
       <div class="panel">
         <div class="panel-inner" style="max-width: 480px; margin: 0 auto; text-align: center;">
-          <div style="font-size: 52px; margin-bottom: 6px;">🎉 🏆 ☕</div>
+          <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+            <div style="background: #ffffff; border-radius: 16px; padding: 8px 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); display: inline-flex; align-items: center;">
+              <img src="images/logo-life-at-ptpn.png" alt="Life at PTPN" style="height: 52px; object-fit: contain;">
+            </div>
+          </div>
           <h2>Kuis Selesai! Kerja Luar Biasa!</h2>
           <p class="muted small" style="margin-top: 2px;">
             <b>${escapeHtml(playerName)}</b> · ${escapeHtml(playerEntity)}
@@ -1069,19 +1094,19 @@
 
           <!-- Kartu Nilai Akhir -->
           <div style="background: linear-gradient(145deg, #fffcf0 0%, #fff7d6 100%); border: 2.5px solid #f5b027; border-radius: 18px; padding: 20px; margin: 18px 0; box-shadow: var(--shadow-pop);">
-            <small style="color: #8c630f; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">TOTAL SKOR AKHIR ANDA</small>
+            <small style="color: #8c630f; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">TOTAL SKOR AKHIR KAMU</small>
             <div style="font-size: clamp(44px, 10vw, 58px); font-weight: 950; color: #16472b; margin: 4px 0;">
               ${score}
             </div>
             <p style="color: #3b5f48; font-weight: 700; font-size: 14px;">
-              ${correctCount === 4 ? '🌟 Sempurna! Anda memanen semua 4 buah kopi terbaik!' : `Anda berhasil menemukan ${correctCount} dari 4 jawaban tepat.`}
+              ${correctCount === 4 ? '🌟 Sempurna! Kamu memanen semua 4 buah kopi terbaik!' : `Kamu berhasil menemukan ${correctCount} dari 4 jawaban tepat.`}
             </p>
             <div class="small muted" style="margin-top: 4px;">Waktu pengerjaan: <b>${formatTime(elapsedSeconds)}</b></div>
           </div>
 
           <!-- Keterangan Penyimpanan Google Spreadsheet -->
           <div style="background: #eef6ec; border: 1.5px solid #c8d9be; border-radius: 12px; padding: 12px; font-size: 13px; color: #19462b; margin-bottom: 20px; text-align: left; line-height: 1.5;">
-            🟢 <b>Tercatat:</b> Skor Anda otomatis tersimpan di Google Spreadsheet resmi.<br>
+            🟢 <b>Tercatat:</b> Skor kamu otomatis tersimpan di Google Spreadsheet resmi.<br>
             🔒 <b>Papan Peringkat:</b> Sesuai ketentuan, papan peringkat dan penetapan juara hanya dapat dilihat oleh Panitia/Admin.
           </div>
 
@@ -1308,6 +1333,7 @@
               <th style="width: 44px;">Rank</th>
               <th>Nama Peserta</th>
               <th>Entitas PTPN</th>
+              <th>No. WhatsApp</th>
               <th>Benar</th>
               <th>Waktu</th>
               <th style="text-align: right;">Skor</th>
@@ -1319,6 +1345,7 @@
                 <td><b>${p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : p.rank}</b></td>
                 <td><b>${escapeHtml(p.name)}</b></td>
                 <td><small>${escapeHtml(p.entity || '—')}</small></td>
+                <td><small style="font-family: monospace; color: #166534; font-weight: 700;">${escapeHtml(p.whatsapp || '—')}</small></td>
                 <td>${p.correctCount}/4</td>
                 <td><small>${escapeHtml(p.duration || '—')}</small></td>
                 <td style="text-align: right; font-size: 14.5px;"><b>${p.score}</b></td>

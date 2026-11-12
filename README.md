@@ -1,18 +1,34 @@
-# Quiz Podcast DSPS — Rahasia Mutu Kopi Ijen 🍒🧺
-*(Edisi Spesial PTPN Group · Musik Jingle PTPN · Simulasi Interaktif · Podcast Kata Kalcer · Panel Admin Sandi 'dsps')*
+# Life at PTPN Quiz — Holding Perkebunan Nusantara 🌿
+*(Kata Kalcer Podcast Interactive Quiz · Logo Resmi Life at PTPN · Sinkronisasi Nomor WhatsApp)*
 
 Repository GitHub: **[https://github.com/zandyka/Quiz-Podcast-DSPS.git](https://github.com/zandyka/Quiz-Podcast-DSPS.git)**
 
-Game kuis interaktif mobile-first bertema **Kopi Ijen** yang dirancang khusus untuk seluruh insan **PTPN Group** dalam rangkaian acara Podcast DSPS.
+Game kuis interaktif mobile-first bertema **Kopi Ijen** yang dirancang khusus untuk seluruh insan **Holding Perkebunan Nusantara** dalam rangkaian acara Podcast Kata Kalcer.
 
 ---
 
-## 🌟 Fitur Utama & Pembaruan Sistem (5 Revisi Terbaru)
+## 🌟 Fitur Utama & Pembaruan Sistem
 
-### 1. 🎵 Musik Jingle PTPN (Mars Planters Nusantara)
-* **Audio Web Synthesizer Mandiri**: Menghadirkan nada riang dan megah jingle/mars *Planters Nusantara* PTPN Group (brass fanfare, bassline, dan ketukan mars).
-* **Kontrol Musik di Topbar**: Tombol `🎵 Jingle PTPN` dengan animasi gelombang equalizer (*equalizer waves*) yang bergerak dinamis saat musik berputar.
-* **Ramah Browser Mobile**: Otomatis berputar secara mulus saat peserta berinteraksi (menekan tombol kuis/simulasi).
+### 1. 🎨 Logo Resmi Life at PTPN & Identitas Baru
+* **Logo Life at PTPN**: Menggantikan logo cangkir kopi dan buah ceri dengan logo visual resmi **Life at PTPN** berlatar kartu bersih.
+* **Branding Resmi**:
+  * Judul Utama: **Life at PTPN Quiz**
+  * Sub-judul: **Holding Perkebunan Nusantara**
+  * Judul Kuis: **Kata Kalcer Podcast Interactive Quiz**
+  * Teks Badge Podcast: **Kuis podcast jejak kopi nusantara**
+  * Bahasa Ramah: Seluruh kata ganti disesuaikan menjadi **kamu** (lebih akrab & dinamis).
+
+### 2. 📱 Input Nomor WhatsApp & Sinkronisasi Spreadsheet
+* **Formulir Pendaftaran**: Dilengkapi input **Nomor WhatsApp Aktif** tepat di bawah menu pilihan Entitas PTPN.
+* **Kolom Spreadsheet (17 Kolom)**:
+  * Kolom C disisipkan sebagai **Nomor WhatsApp** (berada tepat di sebelah kanan kolom Entitas PTPN Group).
+  * Data terkirim secara otomatis melalui Google Apps Script Web App.
+* **Tampilan Admin**: Kolom No. WhatsApp tampil langsung di tabel Papan Peringkat Admin untuk memudahkan konfirmasi pemenang.
+
+### 3. 🎵 Musik Jingle PTPN (One PTPN One Culture)
+* **Audio Resmi MP3**: Memutar audio jingle resmi *One PTPN One Culture* (`audio/jingle-ptpn.mp3`).
+* **Default Menyala**: Musik otomatis aktif saat website dibuka dengan fallback interaksi sentuhan layar.
+* **Kontrol Musik di Topbar**: Tombol `🎵 Jingle PTPN` dengan animasi gelombang equalizer (*equalizer waves*).
 
 ### 2. 🔒 Papan Peringkat Khusus Admin (Kata Sandi: `dsps`)
 * **Privasi Skor Peserta**: Papan peringkat (*leaderboard*) kini **hanya dapat dilihat oleh Panitia/Admin** melalui panel admin yang diproteksi sandi `dsps`.

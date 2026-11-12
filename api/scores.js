@@ -123,20 +123,45 @@ module.exports = async function handler(req, res) {
       const rows = parseCsv(csvText);
 
       const leaderboard = [];
+      const headerRow = rows[0] || [];
+      const hasWhatsAppCol = headerRow[2] && (
+        headerRow[2].toLowerCase().includes('wa') || 
+        headerRow[2].toLowerCase().includes('whatsapp') ||
+        headerRow[2].toLowerCase().includes('nomor')
+      );
+
       for (let i = 2; i < rows.length; i++) {
         const r = rows[i];
         const name = r[0] || '';
         const entity = r[1] || '';
-        const score = parseInt(r[2], 10) || 0;
-        const correctCount = parseInt(r[3], 10) || 0;
-        const duration = r[6] || '';
-        const timestamp = r[7] || '';
+        let whatsapp = '';
+        let score = 0;
+        let correctCount = 0;
+        let duration = '';
+        let timestamp = '';
 
-        if (name && name !== '[KUNCI RESMI]') {
+        // Deteksi cerdas apakah baris memiliki kolom No. WhatsApp (17 kolom atau nomor WA berdigit >= 8)
+        const isWaRow = r.length >= 17 || (r[2] && String(r[2]).length >= 8);
+
+        if (isWaRow) {
+          whatsapp = r[2] || '';
+          score = parseInt(r[3], 10) || 0;
+          correctCount = parseInt(r[4], 10) || 0;
+          duration = r[7] || '';
+          timestamp = r[8] || '';
+        } else {
+          score = parseInt(r[2], 10) || 0;
+          correctCount = parseInt(r[3], 10) || 0;
+          duration = r[6] || '';
+          timestamp = r[7] || '';
+        }
+
+        if (name && name !== '[KUNCI RESMI]' && name !== '[CONTOH]') {
           leaderboard.push({
             rank: 0,
             name,
             entity,
+            whatsapp,
             score,
             correctCount,
             duration,
@@ -175,6 +200,7 @@ module.exports = async function handler(req, res) {
 
       const name = (body.name || '').trim();
       const entity = (body.entity || '').trim();
+      const whatsapp = (body.whatsapp || body.wa || body.no_wa || '').trim();
       const score = Number(body.score) || 0;
       const correctCount = Number(body.correct_count) || 0;
       const wrongCount = Number(body.wrong_count) || 0;
@@ -196,6 +222,7 @@ module.exports = async function handler(req, res) {
       const newRow = [
         name,
         entity || '—',
+        whatsapp || '—',
         score,
         `${correctCount} / 4`,
         wrongCount,

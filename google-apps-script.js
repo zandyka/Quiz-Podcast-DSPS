@@ -33,6 +33,9 @@ function doPost(e) {
     var contents = JSON.parse(e.postData.contents);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
+    // Sinkronkan kolom Nomor WhatsApp di kolom C (sebelah kanan Entitas PTPN)
+    ensureWhatsAppColumn(sheet);
+
     // 1. Aksi Append Rows (Banyak Peserta Sekaligus)
     if (contents.action === 'append_rows' && Array.isArray(contents.rows)) {
       var rows = contents.rows;
@@ -77,5 +80,24 @@ function doPost(e) {
       status: 'error',
       message: err.toString()
     })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Fungsi bantu untuk memastikan kolom Nomor WhatsApp ada di kolom C
+function ensureWhatsAppColumn(sheet) {
+  try {
+    var headerColC = sheet.getRange(1, 3).getValue();
+    if (headerColC !== 'Nomor WhatsApp') {
+      sheet.insertColumnAfter(2); // Sisipkan kolom baru di sebelah kanan kolom B
+      var headerCell = sheet.getRange(1, 3);
+      headerCell.setValue('Nomor WhatsApp');
+      headerCell.setBackground('#173d30');
+      headerCell.setFontColor('#ffffff');
+      headerCell.setFontWeight('bold');
+      headerCell.setHorizontalAlignment('center');
+      sheet.setColumnWidth(3, 160);
+    }
+  } catch (err) {
+    // Abaikan jika sheet terproteksi
   }
 }
