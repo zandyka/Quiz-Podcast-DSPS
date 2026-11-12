@@ -1,44 +1,43 @@
 # Quiz Podcast DSPS — Rahasia Mutu Kopi Ijen 🍒🧺
-*(Edisi Ramah Non-IT · Terhubung Google Spreadsheet · Siap Vercel)*
+*(Kuis Mandiri 24/7 Tanpa Host · Terhubung Google Spreadsheet · Siap Vercel)*
 
 Repository: **[https://github.com/zandyka/Quiz-Podcast-DSPS.git](https://github.com/zandyka/Quiz-Podcast-DSPS.git)**
 
-Game kuis interaktif multiplayer bertema **Kopi Ijen** yang dirancang khusus untuk acara gathering, workshop, podcast live, maupun kompetisi. Didesain **super ramah bagi pengguna non-IT**, baik untuk panitia (Host) maupun peserta di smartphone masing-masing.
+Game kuis interaktif bertema **Kopi Ijen** yang dirancang khusus untuk audiens Podcast DSPS. **Dapat diakses kapan saja secara mandiri tanpa perlu host**, di mana setiap hasil kuis otomatis tersimpan dan diperingkatkan langsung ke **Google Spreadsheet**.
 
 ---
 
-## 🌟 Peningkatan Khusus untuk Pengguna Non-IT
+## 🌟 Fitur Utama & Pengalaman Pengguna (User-Friendly 24/7)
 
-1. **📷 QR Code Otomatis di Layar Host**:
-   * Panitia tidak perlu lagi mengeja kode room secara manual.
-   * Cukup tampilkan layar Host di laptop atau proyektor panggung. Peserta di ruangan tinggal mengarahkan kamera HP untuk memindai QR Code dan langsung masuk ke ruang kuis!
-2. **💬 Tombol "Kirim ke WhatsApp"**:
-   * Panitia dapat membagikan undangan kuis langsung ke grup WhatsApp dengan 1 kali klik. Pesan undangan dan link kuis otomatis terformat rapi.
-3. **⚙️ Preset Aturan Skor Cepat**:
-   * Panitia tidak perlu bingung menghitung bobot nilai. Cukup klik preset:
-     * ☕ **Santai:** Benar +100, Salah 0, Bonus +50, Durasi 90 detik.
-     * ⚖️ **Standar:** Benar +100, Salah -50, Bonus +100, Durasi 90 detik.
-     * 🔥 **Tantangan:** Benar +150, Salah -75, Bonus +150, Durasi 60 detik.
-4. **🍒 Interaksi 1-Ketukan (One-Tap Pick) untuk Peserta**:
-   * Selain fitur seret (*drag-and-drop*), peserta cukup mengetuk buah kopi lalu menekan tombol besar **"🧺 Masukkan ke Keranjang"**. Sangat nyaman digunakan di layar HP sentuh!
-5. **🎉 Efek Perayaan (Konfeti & Suara)**:
-   * Dilengkapi animasi kembang api kertas (*confetti*) dan efek nada ceria Web Audio API saat peserta mendapatkan jawaban tepat atau memenangkan kuis.
-   * Ada tombol **🔊 / 🔇 (Audio Toggle)** di pojok atas agar peserta bisa mematikan efek suara jika berada di tempat hening.
-6. **⛶ Mode Layar Penuh (Presenter / Proyektor Mode)**:
-   * Tombol satu-klik untuk memaksimalkan tampilan layar Host ke proyektor atau TV panggung tanpa address bar browser.
+1. **Akses Kapan Saja (Tanpa Perlu Host)**:
+   * Siapa pun dapat membuka website kapan saja untuk langsung bermain kuis.
+   * Tidak perlu menunggu room dibuat oleh host, tidak perlu nunggu pemain lain di lobby.
+2. **Alur Kuis Super Simpel (3 Langkah)**:
+   * **Langkah 1:** Masukkan **Nama Lengkap** dan **Asal Unit Kerja / Entitas**.
+   * **Langkah 2:** Arena Kuis interaktif (90 detik). Buka 8 buah kopi merah di pohon, temukan 4 faktor mutu Kopi Ijen yang benar. Cukup ketuk buah lalu tekan tombol **"🧺 Masukkan ke Keranjang"**.
+   * **Langkah 3:** Selesai! Skor akhir muncul dengan animasi konfeti, otomatis tersimpan ke Google Spreadsheet, dan dapat dibagikan langsung ke WhatsApp.
+3. **🏆 Papan Peringkat Global Real-Time (Live Leaderboard)**:
+   * Terhubung langsung dengan Google Spreadsheet.
+   * Menampilkan **Podium Top 3 Juara** (👑 🥇 Emas, 🥈 Perak, 🥉 Perunggu) dan tabel peringkat lengkap seluruh pemain yang pernah berpartisipasi.
+4. **📖 Tab Edukasi & Wawasan Kopi Ijen**:
+   * Penjelasan 4 faktor keunggulan Kopi Ijen: Tanah vulkanik kaya hara, ketinggian >1.000 mdpl, petik merah selektif, dan double sortasi/fermentasi 12–36 jam.
+5. **🎉 Audio & Perayaan Seru**:
+   * Efek audio ceria Web Audio API (dengan tombol 🔊 / 🔇 untuk mematikan suara jika di tempat sunyi).
+   * Animasi kembang api konfeti saat memilih benar dan saat kuis selesai.
+   * Tombol ⛶ Layar Penuh.
 
 ---
 
-## 📊 Integrasi Google Spreadsheet
+## 📊 Google Spreadsheet Database (Telah Dipercantik & Diberi Warna)
 
 * **URL Spreadsheet:** [Google Spreadsheet Kopi Ijen](https://docs.google.com/spreadsheets/d/1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY/edit?gid=0#gid=0)
 * **Spreadsheet ID:** `1Ubm7Qv2uhSXVCUJpzKJ-_1kc6C8rn-g9Xmu9jnJ-KOY`
-* **Web App URL (Aktif):** `https://script.google.com/macros/s/AKfycbyn-8s9up8UTwUwzJ6M_a9DvqrGEiBabJkTT8-L0QMlX14NNwgZlBa5EzJcvcqBFbNGww/exec`
-* **Deployment ID:** `AKfycbyn-8s9up8UTwUwzJ6M_a9DvqrGEiBabJkTT8-L0QMlX14NNwgZlBa5EzJcvcqBFbNGww`
-
-### Format Kolom yang Tersimpan di Spreadsheet:
-Setiap kali tombol **"📤 Kirim Nilai ke Spreadsheet"** ditekan, baris peserta akan otomatis terisi sesuai kolom:
-$$\text{nama, entitas, soal 1, soal 2, soal 3, soal 4, soal 5, soal 6, soal 7, soal 8, total}$$
+* **Format Tabel Baru yang Dipercantik:**
+  * **Header Hijau Kopi Gelap (`#173D30`)**, teks putih tebal, rata tengah, dan di-*freeze* agar tetap terlihat saat di-scroll.
+  * Lebar kolom rapi: Nama (200px), Entitas (180px), Soal 1..8 (120px), Total Skor (120px, Bold), Waktu Selesai (170px).
+  * **Pewarnaan Otomatis (Conditional Formatting):**
+    * Teks **Benar** otomatis berwarna hijau lembut (`#D4EDDA`).
+    * Teks **Salah** otomatis berwarna merah lembut (`#F8D7DA`).
 
 ---
 
@@ -52,19 +51,10 @@ $$\text{nama, entitas, soal 1, soal 2, soal 3, soal 4, soal 5, soal 6, soal 7, s
 
 ---
 
-## ☁️ Cara Push ke GitHub & Deploy ke Vercel
+## ☁️ Deploy ke Vercel
 
-### 1. Push ke GitHub:
-```bash
-git add .
-git commit -m "feat: upgrade total kuis podcast dsps ramah non-it dan integrasi gsheets"
-git branch -M main
-git push -u origin main
-```
-
-### 2. Hubungkan ke Vercel:
-1. Buka dashboard [vercel.com](https://vercel.com) dan login dengan akun GitHub Anda.
-2. Klik **"Add New..."** → **"Project"**.
-3. Pilih repository **`Quiz-Podcast-DSPS`**.
+1. Buka [vercel.com](https://vercel.com) dan login dengan akun GitHub Anda.
+2. Klik **"Add New..." → "Project"**.
+3. Pilih repository **`zandyka/Quiz-Podcast-DSPS`**.
 4. Klik **"Deploy"**!
-5. Selesai! Web kuis Anda akan langsung live dengan link HTTPS (misal: `https://quiz-podcast-dsps.vercel.app`) yang siap dibagikan ke seluruh peserta.
+5. Kuis Anda akan aktif 24 jam di URL publik (contoh: `https://quiz-podcast-dsps.vercel.app`).

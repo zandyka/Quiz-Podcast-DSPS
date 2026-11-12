@@ -6,6 +6,7 @@ const url = require('url');
 
 const gameHandler = require('./api/game');
 const sheetHandler = require('./api/sheet');
+const scoresHandler = require('./api/scores');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -63,6 +64,9 @@ const server = http.createServer((req, res) => {
     }
     if (pathname === '/api/sheet' || pathname === '/api/sheet/') {
       return sheetHandler(req, res);
+    }
+    if (pathname === '/api/scores' || pathname === '/api/scores/') {
+      return scoresHandler(req, res);
     }
 
     // Static Files dari /public

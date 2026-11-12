@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0b2218">
-  <meta name="description" content="Quiz Podcast DSPS - Kuis Kopi Ijen Interaktif Multiplayer dengan Host Dashboard, Pengatur Skor, Live Leaderboard, dan Terhubung ke Google Spreadsheet">
+  <meta name="description" content="Quiz Podcast DSPS - Kuis Kopi Ijen Interaktif Mandiri. Akses kapan saja, kumpulkan buah kopi terbaik, dan masuk ke Papan Peringkat Google Spreadsheet!">
   <title>Quiz Podcast DSPS | Rahasia Kopi Ijen</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Canvas Confetti untuk Perayaan Pemenang -->
+  <!-- Canvas Confetti untuk Efek Pesta -->
   <canvas id="confettiCanvas"></canvas>
 
   <div class="wrap">
@@ -19,36 +19,39 @@
         <div class="brand-mark">☕</div>
         <div class="brand-text">
           <strong>QUIZ PODCAST DSPS</strong>
-          <small>THE IJEN COFFEE QUEST · LIVE MULTIPLAYER</small>
+          <small>THE IJEN COFFEE QUEST · ON-DEMAND</small>
         </div>
       </a>
 
-      <!-- Tombol Suara & Fullscreen (Sangat Ramah User Non-IT) -->
+      <!-- Kontrol Suara & Fullscreen -->
       <div class="top-controls">
         <button id="btnAudioToggle" class="btn-icon" title="Nyalakan / Matikan Efek Suara" aria-label="Toggle Audio">🔊</button>
-        <button id="btnFullscreenToggle" class="btn-icon" title="Mode Layar Penuh (Cocok untuk Proyektor)" aria-label="Toggle Fullscreen">⛶</button>
+        <button id="btnFullscreenToggle" class="btn-icon" title="Mode Layar Penuh" aria-label="Toggle Fullscreen">⛶</button>
       </div>
     </header>
 
-    <!-- Hero Title -->
-    <section class="hero">
-      <div class="eyebrow">🎙️ Podcast DSPS Interactive Gameshow</div>
+    <!-- Navigasi Tab Menu Utama (Tanpa Host, Akses Kapan Saja) -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="play">🍒 Main Kuis</button>
+      <button class="nav-tab" data-tab="leaderboard">🏆 Papan Peringkat</button>
+      <button class="nav-tab" data-tab="education">📖 Rahasia Kopi Ijen</button>
+    </nav>
+
+    <!-- Hero Title Ringkas -->
+    <section class="hero" id="mainHero">
+      <div class="eyebrow">🎙️ Podcast DSPS Interactive Quiz</div>
       <h1>Rahasia Keistimewaan <span>Kopi Ijen</span></h1>
-      <p>Buka buah kopi merah untuk mengungkap rahasia rasa kopi Ijen. Pilih yang tepat lalu masukkan ke keranjang sebelum waktu habis!</p>
+      <p>Kuis interaktif memetik buah kopi Ijen terbaik. Buka buah kopi merah, pilih 4 jawaban yang tepat, dan buktikan pengetahuanmu di papan peringkat!</p>
     </section>
 
-    <!-- Main Container -->
+    <!-- Main Container Dinamis -->
     <main id="screen">
-      <div class="panel">
-        <div class="panel-inner" style="text-align: center; padding: 40px 20px;">
-          <p class="muted">Memuat permainan...</p>
-        </div>
-      </div>
+      <!-- Diisi oleh app.js -->
     </main>
 
     <!-- Footer Ramah -->
-    <footer style="text-align: center; font-size: 12px; color: #a3c4b0; margin-top: 36px; line-height: 1.6;">
-      Quiz Podcast DSPS · Terhubung Langsung ke Google Spreadsheet · Siap untuk Acara Gathering & Workshop
+    <footer style="text-align: center; font-size: 12.5px; color: #a3c4b0; margin-top: 36px; line-height: 1.6;">
+      Quiz Podcast DSPS · Terhubung Langsung ke Google Spreadsheet · Akses Kapan Saja 24/7
     </footer>
   </div>
 
