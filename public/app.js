@@ -505,9 +505,9 @@
   // ==========================================
   function renderIntro() {
     const screen = $('#screen');
-    const storedName = localStorage.getItem('kopi_player_name') || '';
-    const storedEntity = localStorage.getItem('kopi_player_entity') || '';
-    const storedWhatsApp = localStorage.getItem('kopi_player_wa') || '';
+    const storedName = playerName || '';
+    const storedEntity = playerEntity || '';
+    const storedWhatsApp = playerWhatsApp || '';
 
     screen.innerHTML = `
       <div class="panel">
@@ -652,18 +652,9 @@
       const n = $('#inputName').value.trim();
       const ent = $('#selectEntity').value;
       const wa = $('#inputWhatsApp').value.trim();
-      if (n) {
-        playerName = n;
-        localStorage.setItem('kopi_player_name', n);
-      }
-      if (ent) {
-        playerEntity = ent;
-        localStorage.setItem('kopi_player_entity', ent);
-      }
-      if (wa) {
-        playerWhatsApp = wa;
-        localStorage.setItem('kopi_player_wa', wa);
-      }
+      if (n) playerName = n;
+      if (ent) playerEntity = ent;
+      if (wa) playerWhatsApp = wa;
       // Mulai jingle PTPN
       jinglePlayer.play();
       startSimulation();
@@ -684,9 +675,6 @@
       playerName = n;
       playerEntity = ent;
       playerWhatsApp = wa;
-      localStorage.setItem('kopi_player_name', n);
-      localStorage.setItem('kopi_player_entity', ent);
-      localStorage.setItem('kopi_player_wa', wa);
 
       // Mulai jingle PTPN
       jinglePlayer.play();
@@ -1358,29 +1346,36 @@
     fireConfetti();
 
     const wrongCount = Object.values(thrownBeans).filter(t => !t.correct).length;
+    const payloadBody = JSON.stringify({
+      action: 'submit_score',
+      name: playerName,
+      entity: playerEntity,
+      whatsapp: playerWhatsApp,
+      score: score,
+      r1_score: round1Score,
+      r2_score: round2Score,
+      r2_answer: round2Answer,
+      r2_correct: round2Correct,
+      correct_count: correctCount,
+      wrong_count: wrongCount,
+      duration: formatTime(elapsedSeconds),
+      answers: thrownBeans,
+      screenshot_base64: playerScreenshot?.base64 || '',
+      screenshot_mime: playerScreenshot?.mimeType || 'image/jpeg',
+      screenshot_name: playerScreenshot?.fileName || 'bukti-share-story.jpg'
+    });
+
+    // Reset sisa data formulir agar saat kembali ke homepage tetap bersih
+    playerScreenshot = null;
+    localStorage.removeItem('kopi_player_name');
+    localStorage.removeItem('kopi_player_entity');
+    localStorage.removeItem('kopi_player_wa');
 
     try {
       const res = await fetch(`${API_BASE}/scores`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'submit_score',
-          name: playerName,
-          entity: playerEntity,
-          whatsapp: playerWhatsApp,
-          score: score,
-          r1_score: round1Score,
-          r2_score: round2Score,
-          r2_answer: round2Answer,
-          r2_correct: round2Correct,
-          correct_count: correctCount,
-          wrong_count: wrongCount,
-          duration: formatTime(elapsedSeconds),
-          answers: thrownBeans,
-          screenshot_base64: playerScreenshot?.base64 || '',
-          screenshot_mime: playerScreenshot?.mimeType || 'image/jpeg',
-          screenshot_name: playerScreenshot?.fileName || 'bukti-share-story.jpg'
-        })
+        body: payloadBody
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.error) {
@@ -1448,14 +1443,11 @@
             🔒 <b>Papan Peringkat:</b> Sesuai ketentuan, papan peringkat dan penetapan juara hanya dapat dilihat oleh Panitia/Admin.
           </div>
 
-          <!-- Tombol Aksi Mobile -->
+          <!-- Tombol Aksi Mobile (Tanpa Opsi Main Lagi) -->
           <div class="stack" style="gap: 10px;">
             <a href="${waUrl}" target="_blank" class="btn wa">
               💬 Bagikan Skor ke WhatsApp
             </a>
-            <button id="btnPlayAgain" class="btn primary">
-              🔄 Main Lagi / Coba Ulang
-            </button>
             <button id="btnOpenPodcastFromResult" class="btn green">
               🎬 Tonton Podcast Kata Kalcer
             </button>
@@ -1463,11 +1455,6 @@
         </div>
       </div>
     `;
-
-    $('#btnPlayAgain').onclick = () => {
-      gameStatus = 'intro';
-      render();
-    };
 
     $('#btnOpenPodcastFromResult').onclick = () => {
       currentTab = 'podcast';
@@ -1524,7 +1511,7 @@
 
           <div class="actions" style="margin-top: 16px;">
             <button id="btnPlayFromPodcast" class="btn primary" style="width: 100%;">
-              🍒 Mainkan Kuis & Simulasi Sekarang!
+              ${gameStatus === 'result' ? '🏆 Lihat Ringkasan Skor Akhir' : '🍒 Mainkan Kuis & Simulasi Sekarang!'}
             </button>
           </div>
         </div>
@@ -1533,7 +1520,9 @@
 
     $('#btnPlayFromPodcast').onclick = () => {
       currentTab = 'quiz';
-      gameStatus = 'intro';
+      if (gameStatus !== 'result') {
+        gameStatus = 'intro';
+      }
       render();
     };
   }
@@ -1919,6 +1908,11 @@
   // INISIALISASI APLIKASI
   // ==========================================
   async function init() {
+    // Pastikan setiap kembali ke homepage, data formulir sebelumnya di-reset bersih
+    localStorage.removeItem('kopi_player_name');
+    localStorage.removeItem('kopi_player_entity');
+    localStorage.removeItem('kopi_player_wa');
+
     setupControls();
     await fetchQuizStatus();
     render();
