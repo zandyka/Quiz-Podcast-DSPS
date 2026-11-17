@@ -24,8 +24,8 @@ Game kuis interaktif mobile-first bertema **Kopi Ijen** yang dirancang khusus un
 * **Total Skor Maksimal**: **600 poin** (R1 500 + R2 100).
 * **Layar Hasil**: Menampilkan perolehan Total Skor dengan rincian breakdown dua ronde (Ronde 1 & Ronde 2).
 
-### 2. 📊 Sinkronisasi Google Spreadsheet Rapi (19 Kolom Standar)
-Setiap pengiriman kuis otomatis tercatat di Google Spreadsheet resmi dengan susunan 19 kolom lengkap:
+### 2. 📊 Sinkronisasi Google Spreadsheet Rapi (20 Kolom Standar) & Upload Bukti Story ke Drive
+Setiap pengiriman kuis otomatis tercatat di Google Spreadsheet resmi dengan susunan 20 kolom lengkap:
 1. **Nama Peserta**
 2. **Entitas PTPN Group**
 3. **Nomor WhatsApp** *(di sebelah kanan kolom Entitas)*
@@ -37,7 +37,8 @@ Setiap pengiriman kuis otomatis tercatat di Google Spreadsheet resmi dengan susu
 9. **R2: Poin Ronde 2** *(100 / 0)*
 10. **Durasi Pengerjaan** *(mm:ss)*
 11. **Waktu Submit (WIB)**
-12. s.d. 19. **R1: Soal 1 s.d. 8 (Rincian Buah Kopi Ijen)**
+12. **Bukti Share Story** *(Link Google Drive otomatis dari upload screenshot wajib)*
+13. s.d. 20. **R1: Soal 1 s.d. 8 (Rincian Buah Kopi Ijen)**
 
 ### 3. 🎨 Logo Resmi Life at PTPN & Identitas Baru
 * **Logo Life at PTPN**: Menggantikan logo cangkir kopi dan buah ceri dengan logo visual resmi **Life at PTPN** berlatar kartu bersih.
@@ -76,7 +77,7 @@ Setiap pengiriman kuis otomatis tercatat di Google Spreadsheet resmi dengan susu
 * **Soal Simulasi**: *"Apa saja jenis kopi yang diproduksi PTPN?"*
   * **Arabika** → ✅ Benar (+100 poin)
   * **Robusta** → ✅ Benar (+100 poin)
-  * **Liberika** → ✅ Benar (+100 poin)
+  * **Liberika** → ❌ Salah (-50 poin)
   * **Excelsa** → ❌ Salah (-50 poin)
 * Lengkap dengan animasi petik buah ke keranjang, bunyi sound effect, konfeti, dan penjelasan edukatif untuk masing-masing varietas kopi.
 

@@ -34,7 +34,7 @@
   ];
   const EXPLANATION_ROUND_2 = 'Nilai budaya Excellence (Keunggulan) merupakan salah satu pilar budaya kerja utama yang ditekankan dalam podcast jejak kopi nusantara — mengedepankan komitmen mutu terbaik, standar tinggi, dan dedikasi planters dari hulu kebun hingga ke cangkir kopi.';
 
-  // Bank Soal Simulasi Tutorial (Soal Revisi 5)
+  // Bank Soal Simulasi Tutorial (Revisi: Arabika & Robusta Benar; Liberika & Excelsa Salah)
   const QUESTION_SIMULATION = 'Apa saja jenis kopi yang diproduksi PTPN?';
   const BEANS_SIMULATION = [
     {
@@ -52,14 +52,14 @@
     {
       id: 3,
       label: 'Liberika',
-      correct: true,
-      info: 'Kopi Liberika juga dibudidayakan di areal perkebunan PTPN dengan keunikan aroma buah nangka serta adaptasi kuat di lahan gambut.'
+      correct: false,
+      info: 'Liberika bukan merupakan jawaban yang tepat pada pilihan ini — komoditas kopi utama PTPN yang dimaksud berfokus pada Arabika dan Robusta.'
     },
     {
       id: 4,
       label: 'Excelsa',
       correct: false,
-      info: 'Excelsa bukan merupakan komoditas jenis kopi utama yang diproduksi secara massal oleh PTPN Group (PTPN fokus pada Arabika, Robusta, & Liberika).'
+      info: 'Excelsa bukan merupakan komoditas jenis kopi utama yang diproduksi oleh PTPN Group (fokus pada Arabika & Robusta).'
     }
   ];
 
@@ -238,6 +238,7 @@
   let playerName = '';
   let playerEntity = '';
   let playerWhatsApp = '';
+  let playerScreenshot = null; // { dataUrl, base64, mimeType, fileName }
   let score = 0; // Total skor akumulasi (Ronde 1 + Ronde 2)
   let correctCount = 0;
   let elapsedSeconds = 0;
@@ -380,6 +381,52 @@
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   }
 
+  // Kompresi Gambar Otomatis (Max 900px, JPEG 75% agar ringan di Vercel & Apps Script)
+  function compressImageFile(file) {
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        return reject(new Error('File harus berupa gambar (JPG, PNG, WebP).'));
+      }
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Gagal membaca file gambar.'));
+      reader.onload = ev => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Gambar tidak valid atau rusak.'));
+        img.onload = () => {
+          const maxDim = 900;
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width >= height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.74);
+          const base64 = dataUrl.split(',')[1] || '';
+          resolve({
+            dataUrl,
+            base64,
+            mimeType: 'image/jpeg',
+            fileName: file.name || 'bukti-share-story.jpg'
+          });
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   // ==========================================
   // FETCH STATUS KUIS GLOBAL
   // ==========================================
@@ -519,6 +566,26 @@
               </small>
             </div>
 
+            <!-- Kolom Upload Screenshot Bukti Share Story (Wajib) -->
+            <div class="field-group">
+              <label class="field-label">Upload Screenshoot bukti share story <span style="color:#d32f2f">*</span></label>
+              <div class="upload-story-box" id="uploadStoryBox">
+                <input type="file" id="inputScreenshot" accept="image/*" style="display: none;">
+                <div id="uploadPlaceholder" class="upload-placeholder" ${playerScreenshot ? 'style="display:none"' : ''}>
+                  <div class="upload-icon">📸</div>
+                  <div class="upload-title">Ketuk untuk pilih / upload screenshot</div>
+                  <small class="muted" style="font-size: 11.5px;">Wajib sebelum mulai kuis utama · Format JPG/PNG/WebP</small>
+                </div>
+                <div id="uploadPreviewWrap" class="upload-preview-wrap" ${playerScreenshot ? '' : 'style="display:none"'}>
+                  <img id="uploadPreviewImg" src="${playerScreenshot ? playerScreenshot.dataUrl : ''}" alt="Preview Bukti Share Story">
+                  <div class="upload-preview-meta">
+                    <span id="uploadFileName" class="upload-filename">${playerScreenshot ? escapeHtml(playerScreenshot.fileName) : ''}</span>
+                    <button type="button" id="btnChangeScreenshot" class="btn ghost sm">🔄 Ganti Gambar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Petunjuk Aturan Poin -->
             <div style="background: #f4f8f1; border: 1.5px solid #cbdbc1; border-radius: 14px; padding: 14px; margin: 6px 0;">
               <strong style="color: #17452d; display: block; margin-bottom: 5px; font-size: 13.5px;">📖 Aturan Main Kuis (2 Ronde):</strong>
@@ -542,6 +609,43 @@
         </div>
       </div>
     `;
+
+    // Handler Upload Screenshot Bukti Share Story
+    const inputScreenshot = $('#inputScreenshot');
+    const uploadPlaceholder = $('#uploadPlaceholder');
+    const uploadPreviewWrap = $('#uploadPreviewWrap');
+    const uploadPreviewImg = $('#uploadPreviewImg');
+    const uploadFileName = $('#uploadFileName');
+    const btnChangeScreenshot = $('#btnChangeScreenshot');
+
+    if (uploadPlaceholder && inputScreenshot) {
+      uploadPlaceholder.onclick = () => inputScreenshot.click();
+    }
+    if (btnChangeScreenshot && inputScreenshot) {
+      btnChangeScreenshot.onclick = e => {
+        e.stopPropagation();
+        inputScreenshot.click();
+      };
+    }
+    if (inputScreenshot) {
+      inputScreenshot.onchange = async e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          showToast('⏳ Memproses & mengompresi gambar...');
+          const compressed = await compressImageFile(file);
+          playerScreenshot = compressed;
+          if (uploadPreviewImg) uploadPreviewImg.src = compressed.dataUrl;
+          if (uploadFileName) uploadFileName.textContent = compressed.fileName;
+          if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
+          if (uploadPreviewWrap) uploadPreviewWrap.style.display = 'flex';
+          showToast('✅ Screenshot siap dilampirkan!');
+        } catch (err) {
+          showToast('❌ ' + (err.message || 'Gagal memproses gambar'));
+          inputScreenshot.value = '';
+        }
+      };
+    }
 
     // Handler Mulai Simulasi
     $('#btnGoSimulation').onclick = () => {
@@ -575,6 +679,7 @@
       if (n.length < 2) return showToast('Nama lengkap minimal 2 karakter');
       if (!ent) return showToast('Pilih salah satu entitas PTPN Group');
       if (!wa || wa.length < 8) return showToast('Masukkan nomor WhatsApp aktif kamu yang valid');
+      if (!playerScreenshot) return showToast('Wajib Upload Screenshoot bukti share story terlebih dahulu!');
 
       playerName = n;
       playerEntity = ent;
@@ -590,9 +695,9 @@
   }
 
   // ==========================================
-  // REVISI 5: MODE SIMULASI INTERAKTIF (TUTORIAL)
+  // REVISI: MODE SIMULASI INTERAKTIF (TUTORIAL)
   // Soal: "Apa saja jenis kopi yang diproduksi PTPN?"
-  // Pilihan: Arabika (Benar), Robusta (Benar), Liberika (Benar), Excelsa (Salah)
+  // Pilihan: Arabika (Benar), Robusta (Benar), Liberika (Salah), Excelsa (Salah)
   // ==========================================
   function startSimulation() {
     simScore = 0;
@@ -622,7 +727,7 @@
           <small>Skor Simulasi</small>
         </div>
         <div class="stat-item">
-          <b>${simCorrectCount}/3</b>
+          <b>${simCorrectCount}/2</b>
           <small>Benar</small>
         </div>
         <div class="stat-item">
@@ -631,12 +736,12 @@
         </div>
       </div>
 
-      <!-- Banner Pertanyaan Simulasi (Revisi 5) -->
+      <!-- Banner Pertanyaan Simulasi -->
       <div class="game-question">
         <div class="sim-badge">🧪 SIMULASI KUIS · SOAL LATIHAN</div>
         <h2 style="margin-top: 4px;">${QUESTION_SIMULATION}</h2>
         <small style="color: #c9e0d1; display: block; margin-top: 4px;">
-          Pilih 3 jenis kopi yang benar (+100) dan hindari yang bukan (-50)!
+          Pilih 2 jenis kopi yang benar (+100) dan hindari yang bukan (-50)!
         </small>
       </div>
 
@@ -699,7 +804,7 @@
 
       <!-- Tombol Penyelesaian Simulasi / Skip ke Kuis Utama -->
       <div style="margin-top: 14px;" class="stack">
-        ${simCorrectCount >= 3 ? `
+        ${simCorrectCount >= 2 ? `
           <div style="background: linear-gradient(145deg, #fffcf0 0%, #fff7d6 100%); border: 2px solid #f5b027; border-radius: 14px; padding: 14px; text-align: center; color: #173f27;">
             <div style="font-size: 26px;">🎉</div>
             <strong style="display: block; font-size: 15px;">Simulasi Sukses! Kamu Siap Masuk Kuis Utama!</strong>
@@ -727,27 +832,18 @@
     if ($('#btnThrowSimBean')) $('#btnThrowSimBean').onclick = handleThrowSimBean;
     if ($('#btnCancelSimBean')) $('#btnCancelSimBean').onclick = () => { simSelectedBean = null; renderSimulation(); };
 
-    if ($('#btnFinishSimToGoMain')) {
-      $('#btnFinishSimToGoMain').onclick = () => {
-        if (!playerName) {
-          gameStatus = 'intro';
-          render();
-        } else {
-          startQuiz();
-        }
-      };
-    }
+    const goMainFromSim = () => {
+      if (!playerName || !playerEntity || !playerWhatsApp || !playerScreenshot) {
+        gameStatus = 'intro';
+        render();
+        showToast('Lengkapi data & upload bukti share story sebelum mulai kuis utama!');
+      } else {
+        startQuiz();
+      }
+    };
 
-    if ($('#btnSkipSim')) {
-      $('#btnSkipSim').onclick = () => {
-        if (!playerName) {
-          gameStatus = 'intro';
-          render();
-        } else {
-          startQuiz();
-        }
-      };
-    }
+    if ($('#btnFinishSimToGoMain')) $('#btnFinishSimToGoMain').onclick = goMainFromSim;
+    if ($('#btnSkipSim')) $('#btnSkipSim').onclick = goMainFromSim;
   }
 
   function handleSimBeanClick(bId) {
@@ -1264,7 +1360,7 @@
     const wrongCount = Object.values(thrownBeans).filter(t => !t.correct).length;
 
     try {
-      await fetch(`${API_BASE}/scores`, {
+      const res = await fetch(`${API_BASE}/scores`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1280,10 +1376,18 @@
           correct_count: correctCount,
           wrong_count: wrongCount,
           duration: formatTime(elapsedSeconds),
-          answers: thrownBeans
+          answers: thrownBeans,
+          screenshot_base64: playerScreenshot?.base64 || '',
+          screenshot_mime: playerScreenshot?.mimeType || 'image/jpeg',
+          screenshot_name: playerScreenshot?.fileName || 'bukti-share-story.jpg'
         })
       });
-      showToast('✅ Nilai kamu otomatis tersimpan di Google Spreadsheet!');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) {
+        showToast('⚠️ ' + (data.error || 'Gagal menyimpan ke spreadsheet'));
+      } else {
+        showToast('✅ Nilai & bukti story otomatis tersimpan!');
+      }
     } catch (err) {
       console.warn('Gagal sync ke spreadsheet:', err);
     }
@@ -1576,6 +1680,7 @@
               <th style="min-width: 140px;">Nama Peserta</th>
               <th style="min-width: 190px;">Entitas PTPN Group</th>
               <th style="min-width: 130px; text-align: center;">No. WhatsApp</th>
+              <th style="min-width: 110px; text-align: center;">Bukti Story</th>
               <th style="min-width: 90px; text-align: center;">R1 (Petik)</th>
               <th style="min-width: 140px; text-align: center;">R2 (Budaya)</th>
               <th style="min-width: 80px; text-align: center;">Waktu</th>
@@ -1586,6 +1691,7 @@
             ${list.map(p => {
               const cleanWa = String(p.whatsapp || '').replace(/[^0-9]/g, '');
               const waLink = cleanWa.length >= 8 ? `https://wa.me/${cleanWa.startsWith('0') ? '62' + cleanWa.slice(1) : (cleanWa.startsWith('62') ? cleanWa : '62' + cleanWa)}` : '';
+              const hasProofUrl = p.screenshotUrl && /^https?:\/\//i.test(p.screenshotUrl);
 
               return `
                 <tr class="${p.rank === 1 ? 'rank-1' : p.rank === 2 ? 'rank-2' : p.rank === 3 ? 'rank-3' : ''}">
@@ -1605,6 +1711,15 @@
                       </a>
                     ` : `
                       <span class="muted" style="font-size: 11px;">${escapeHtml(p.whatsapp || '—')}</span>
+                    `}
+                  </td>
+                  <td style="text-align: center;">
+                    ${hasProofUrl ? `
+                      <a href="${escapeHtml(p.screenshotUrl)}" target="_blank" rel="noopener" class="tbl-proof-link" title="Buka screenshot bukti share story">
+                        🖼️ Lihat ↗
+                      </a>
+                    ` : `
+                      <span class="muted" style="font-size: 11px;">${escapeHtml(p.screenshotUrl || '—')}</span>
                     `}
                   </td>
                   <td style="text-align: center;">

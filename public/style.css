@@ -889,7 +889,7 @@ select.field {
 
 .rank-table {
   width: 100%;
-  min-width: 840px;
+  min-width: 960px;
   border-collapse: separate;
   border-spacing: 0;
   color: #1a3926;
@@ -1704,4 +1704,102 @@ select.field {
   height: 100vh;
   pointer-events: none;
   z-index: 9998;
+}
+
+/* ==========================================
+   UPLOAD SCREENSHOT BUKTI SHARE STORY
+   ========================================== */
+.upload-story-box {
+  border: 2px dashed #9fc099;
+  border-radius: 16px;
+  background: #f8fbf6;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.upload-story-box:hover {
+  border-color: #217347;
+  background: #f1f8ee;
+}
+
+.upload-placeholder {
+  padding: 20px 14px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.upload-icon {
+  font-size: 32px;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.upload-title {
+  font-weight: 850;
+  font-size: 14px;
+  color: #17452d;
+}
+
+.upload-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.upload-preview-wrap img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid #d5e4cf;
+  background: #f4f7f2;
+}
+
+.upload-preview-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.upload-filename {
+  font-size: 12px;
+  font-weight: 700;
+  color: #365942;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+/* Tombol Lihat Bukti Story di Tabel Admin */
+.tbl-proof-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff8e6;
+  color: #8f5c00;
+  border: 1px solid #f5cf72;
+  border-radius: 99px;
+  padding: 4px 10px;
+  font-weight: 800;
+  font-size: 11.5px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.tbl-proof-link:hover {
+  background: #f5b027;
+  color: #173824;
+  border-color: #d99310;
+  box-shadow: 0 2px 8px rgba(245, 176, 39, 0.35);
 }

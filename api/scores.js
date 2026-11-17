@@ -141,9 +141,19 @@ module.exports = async function handler(req, res) {
         let r2Score = 0;
         let duration = '';
         let timestamp = '';
+        let screenshotUrl = '—';
 
-        // Deteksi format kolom (19 kolom baru vs 17 kolom WA vs 16 kolom awal)
-        if (r.length >= 19) {
+        // Deteksi format kolom (20 kolom dgn Bukti Story vs 19 kolom R2 vs 17 kolom WA vs 16 kolom awal)
+        if (r.length >= 20) {
+          whatsapp = r[2] || '';
+          score = parseInt(r[3], 10) || 0;
+          correctCount = parseInt(r[4], 10) || 0;
+          r2Answer = r[7] || '—';
+          r2Score = parseInt(r[8], 10) || 0;
+          duration = r[9] || '';
+          timestamp = r[10] || '';
+          screenshotUrl = r[11] || '—';
+        } else if (r.length >= 19) {
           whatsapp = r[2] || '';
           score = parseInt(r[3], 10) || 0;
           correctCount = parseInt(r[4], 10) || 0;
@@ -176,7 +186,8 @@ module.exports = async function handler(req, res) {
             r2Answer,
             r2Score,
             duration,
-            timestamp
+            timestamp,
+            screenshotUrl
           });
         }
       }
@@ -224,6 +235,9 @@ module.exports = async function handler(req, res) {
       const r2Text = r2Answer ? `${r2Answer} (${r2Correct ? 'Benar +100' : 'Salah +0'})` : '—';
       const answers = body.answers || {};
       const timestamp = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB';
+      const screenshotBase64 = (body.screenshot_base64 || '').trim();
+      const screenshotMime = (body.screenshot_mime || 'image/jpeg').trim();
+      const screenshotName = (body.screenshot_name || 'bukti-share-story.jpg').trim();
 
       if (!name) {
         return res.status(400).json({ error: 'Nama peserta wajib diisi' });
@@ -235,7 +249,7 @@ module.exports = async function handler(req, res) {
         return a.correct ? `✅ Benar (+${a.points || 100})` : `❌ Salah (${a.points || -50})`;
       };
 
-      // Format 19 Kolom Standar Resmi PTPN Group (Ronde 1 + Ronde 2)
+      // Format 20 Kolom Standar Resmi PTPN Group (Ronde 1 + Ronde 2 + Bukti Share Story Drive)
       const newRow = [
         name,
         entity || '—',
@@ -248,6 +262,7 @@ module.exports = async function handler(req, res) {
         r2Score,
         duration,
         timestamp,
+        screenshotBase64 ? '📷 Tersimpan (Perlu re-deploy Apps Script untuk link Drive)' : '—',
         getAnsText(1),
         getAnsText(2),
         getAnsText(3),
@@ -258,14 +273,20 @@ module.exports = async function handler(req, res) {
         getAnsText(8)
       ];
 
-      // Kirim ke Google Apps Script Web App
+      // Kirim ke Google Apps Script Web App (beserta payload gambar untuk disimpan ke Google Drive)
       const appsScriptResponse = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'append_rows',
           spreadsheetId: SPREADSHEET_ID,
-          rows: [newRow]
+          rows: [newRow],
+          screenshot: screenshotBase64 ? {
+            base64: screenshotBase64,
+            mimeType: screenshotMime,
+            fileName: screenshotName,
+            playerName: name
+          } : null
         }),
         redirect: 'follow'
       });
@@ -274,12 +295,13 @@ module.exports = async function handler(req, res) {
 
       return res.status(200).json({
         ok: true,
-        message: 'Skor berhasil disimpan ke Google Spreadsheet',
+        message: 'Skor & bukti berhasil disimpan ke Google Spreadsheet',
         name,
         score: totalScore,
         r1_score: r1Score,
         r2_score: r2Score,
         r2_answer: r2Answer,
+        screenshot_url: appsScriptResult?.screenshot_url || '',
         timestamp,
         apps_script_result: appsScriptResult
       });
