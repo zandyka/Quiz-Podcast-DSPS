@@ -1709,6 +1709,39 @@ select.field {
 /* ==========================================
    UPLOAD SCREENSHOT BUKTI SHARE STORY
    ========================================== */
+.upload-label-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.btn-download-poster {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e9f5e6;
+  color: #165231;
+  border: 1.5px solid #9cc495;
+  border-radius: 99px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(23, 69, 45, 0.08);
+}
+
+.btn-download-poster:hover,
+.btn-download-poster:active {
+  background: #1a663d;
+  color: #ffffff;
+  border-color: #145030;
+  transform: translateY(-1px);
+}
+
 .upload-story-box {
   border: 2px dashed #9fc099;
   border-radius: 16px;

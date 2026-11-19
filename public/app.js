@@ -568,7 +568,12 @@
 
             <!-- Kolom Upload Screenshot Bukti Share Story (Wajib) -->
             <div class="field-group">
-              <label class="field-label">Upload Screenshoot bukti share story <span style="color:#d32f2f">*</span></label>
+              <div class="upload-label-row">
+                <label class="field-label" style="margin-bottom: 0;">Upload Screenshoot bukti share story <span style="color:#d32f2f">*</span></label>
+                <a href="images/poster-kata-kalcer.jpg" download="Poster-Podcast-Kata-Kalcer-Kopi-Ijen.jpg" id="btnDownloadPoster" class="btn-download-poster">
+                  📥 Unduh poster di sini
+                </a>
+              </div>
               <div class="upload-story-box" id="uploadStoryBox">
                 <input type="file" id="inputScreenshot" accept="image/*" style="display: none;">
                 <div id="uploadPlaceholder" class="upload-placeholder" ${playerScreenshot ? 'style="display:none"' : ''}>
@@ -617,6 +622,13 @@
     const uploadPreviewImg = $('#uploadPreviewImg');
     const uploadFileName = $('#uploadFileName');
     const btnChangeScreenshot = $('#btnChangeScreenshot');
+    const btnDownloadPoster = $('#btnDownloadPoster');
+
+    if (btnDownloadPoster) {
+      btnDownloadPoster.onclick = () => {
+        showToast('📥 Mengunduh poster Podcast Kata Kalcer...');
+      };
+    }
 
     if (uploadPlaceholder && inputScreenshot) {
       uploadPlaceholder.onclick = () => inputScreenshot.click();
